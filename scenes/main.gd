@@ -42,10 +42,12 @@ func _ready():
 			print("yea")
 			Drive = "Z:"
 			f.open(WorkingDirectory + "/Start.sh", File.WRITE)
-			f.store_string('#!/bin/bash\nif [ -z "$4" ]; then WINEPREFIX=$1 $2 $3; else WINEPREFIX=$1 $2 $3 "$4"; fi')
+			f.store_string('#!/bin/bash\nif [ -z "$4" ]; then WINEPREFIX="$1" "$2" "$3"; else WINEPREFIX="$1" "$2" "$3" "$4"; fi')
 			f.close()
+			$Background/FirstTime/Panel/TabContainer.current_tab = 0
 		"Windows":
 			Drive = "C:"
+			$Background/FirstTime/Panel/TabContainer.current_tab = 1
 			$Main/Settings/ItemList.remove_item(0)
 		_:
 			$Background/Control2/RichTextLabel.text = "Your operating system is not supported.\nLinux and Windows only."
@@ -65,7 +67,7 @@ func _ready():
 	$Background/Info.text = $Background/Info.text.replace("%CLIENT%",Version)
 	$Background/Info.text = $Background/Info.text.replace("%MAP%",Map)
 	$Main/Serverlist/Versions.text = Version
-	$Main/Menu.visible = false
+	#$Main/Menu.visible = false
 
 func customconfig(configfile):
 	var config = File.new()
@@ -84,7 +86,9 @@ func loadconfig(arg):
 		"/NovetusFE/nfeconfig.ini":
 			LinuxWinePrefix = config.get_value("Linux Settings", "wineprefix")
 			LinuxWinePath = config.get_value("Linux Settings", "wine_exec_path")
-			LinuxTerminal = config.get_value("Linux Settings", "terminal")
+			$Background/FirstTime/Panel/TabContainer/Linux/WinePathText.text = LinuxWinePath
+			$Background/FirstTime/Panel/TabContainer/Linux/WinePrefixText.text = LinuxWinePrefix
+			$Main/Menu.visible = config.get_value("General Settings", "first_time_setup",false)
 			NewServerIcons = config.get_value("General Settings", "savedicons")
 			for i in $Main/AddServerWindow/ScrollContainer/HBoxContainer.get_children():
 				if i is TextureButton:
@@ -93,7 +97,6 @@ func loadconfig(arg):
 				imageadd(i)
 			$"Main/Settings/Linux Settings/Panel/WPBox".text = LinuxWinePrefix
 			$"Main/Settings/Linux Settings/Panel/WPBox2".text = LinuxWinePath
-			$"Main/Settings/Linux Settings/Panel/CheckBox".pressed = LinuxTerminal
 		"/NovetusFE/servers.ini":
 			for i in config.get_sections():
 				$Main/Serverlist/ItemList.add_item(i,pathtoimage(config.get_value(i,"icon","res://textures/charcustom.png")))
@@ -145,6 +148,8 @@ func launch(program,arg=""):
 					OS.shell_open(WorkingDirectory + program)
 			else:
 				if arg == "":
+					#WorkingDirectory = "."
+					#OS.execute("konsole",["--noclose", "-e", "sh", WorkingDirectory + "/Start.sh", LinuxWinePrefix, LinuxWinePath, WorkingDirectory + program])
 					OS.execute("sh",[WorkingDirectory + "/Start.sh", LinuxWinePrefix, LinuxWinePath, WorkingDirectory + program])
 				else:
 					OS.execute("sh",[WorkingDirectory + "/Start.sh", LinuxWinePrefix, LinuxWinePath, WorkingDirectory + program, arg])
@@ -175,8 +180,8 @@ func saveconfig():
 	var config = ConfigFile.new()
 	config.set_value("Linux Settings", "wineprefix", $"Main/Settings/Linux Settings/Panel/WPBox".text)
 	config.set_value("Linux Settings", "wine_exec_path", $"Main/Settings/Linux Settings/Panel/WPBox2".text)
-	config.set_value("Linux Settings", "terminal", $"Main/Settings/Linux Settings/Panel/CheckBox".pressed)
 	config.set_value("General Settings", "savedicons", NewServerIcons)
+	config.set_value("General Settings", "first_time_setup", $Background/FirstTime/Panel/TabContainer/Linux/NeverShow.pressed)
 	config.save(WorkingDirectory + "/NovetusFE/nfeconfig.ini")
 	if CTheme != null: get_tree().change_scene_to(CTheme)
 
@@ -280,6 +285,7 @@ func multiplayert_item_activated(index):
 			refreshserverlist()
 		"Back":
 			menu("")
+			$Main/Menu/ItemList.grab_focus()
 
 func DirectConnect_Close_pressed():
 	$Main/DirectConnectWindow.visible = false
@@ -287,7 +293,7 @@ func DirectConnect_Close_pressed():
 
 func Firsttime_Button_pressed():
 	$Main/Menu.visible = true
-
+	saveconfig()
 
 func _on_AddServer_pressed():
 	$Main/AddServerWindow.popup()
@@ -415,3 +421,25 @@ func save_server_pressed():
 	serverconfig.save(WorkingDirectory + "/NovetusFE/servers.ini")
 	refreshserverlist()
 	$Main/EditServerWindow.visible = false
+
+
+func _on_WinePrefix_pressed():
+	$Background/FirstTime/Panel/TabContainer/Linux/WinePrefix/FileDialog.popup_centered()
+
+
+func wineprefix_dir_selected(dir):
+	LinuxWinePrefix = dir
+	$Background/FirstTime/Panel/TabContainer/Linux/WinePrefixText.text = LinuxWinePrefix
+	$"Main/Settings/Linux Settings/Panel/WPBox".text = LinuxWinePrefix
+
+func _on_WinePrefix2_pressed():
+	$Background/FirstTime/Panel/TabContainer/Linux/WinePrefix2/FileDialog.popup_centered()
+
+func wine_exec_file_selected(path):
+	LinuxWinePath = path
+	$Background/FirstTime/Panel/TabContainer/Linux/WinePathText.text = LinuxWinePath
+	$"Main/Settings/Linux Settings/Panel/WPBox2".text = LinuxWinePath
+
+
+func _on_OpenNovetus_pressed():
+	launch("/bin/Novetus.exe")

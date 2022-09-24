@@ -1,4 +1,4 @@
-[gd_scene load_steps=84 format=2]
+[gd_scene load_steps=88 format=2]
 
 [ext_resource path="res://textures/hZZ7X7.png" type="Texture" id=1]
 [ext_resource path="res://textures/multiplayer.png" type="Texture" id=2]
@@ -155,6 +155,31 @@ border_width_bottom = 2
 [sub_resource type="DynamicFont" id=67]
 font_data = ExtResource( 6 )
 
+[sub_resource type="StyleBoxFlat" id=20]
+bg_color = Color( 0.235294, 0.258824, 0.415686, 1 )
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+
+[sub_resource type="StyleBoxFlat" id=19]
+bg_color = Color( 0.0666667, 0.0392157, 0.152941, 1 )
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+
+[sub_resource type="StyleBoxEmpty" id=79]
+
+[sub_resource type="DynamicFont" id=80]
+font_data = ExtResource( 6 )
+
+[sub_resource type="DynamicFont" id=81]
+font_data = ExtResource( 6 )
+
+[sub_resource type="DynamicFont" id=82]
+font_data = ExtResource( 6 )
+
 [sub_resource type="StyleBoxFlat" id=8]
 bg_color = Color( 0.0666667, 0.0470588, 0.215686, 1 )
 border_width_left = 2
@@ -204,20 +229,6 @@ border_width_bottom = 2
 [sub_resource type="DynamicFont" id=21]
 size = 25
 font_data = ExtResource( 6 )
-
-[sub_resource type="StyleBoxFlat" id=20]
-bg_color = Color( 0.235294, 0.258824, 0.415686, 1 )
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-
-[sub_resource type="StyleBoxFlat" id=19]
-bg_color = Color( 0.0666667, 0.0392157, 0.152941, 1 )
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
 
 [sub_resource type="StyleBoxFlat" id=28]
 bg_color = Color( 0.34902, 0.333333, 0.517647, 1 )
@@ -569,6 +580,9 @@ margin_top = -88.0
 margin_right = 308.0
 margin_bottom = 296.0
 custom_styles/panel = SubResource( 66 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="RichTextLabel" type="RichTextLabel" parent="Background/FirstTime/Panel"]
 margin_left = 10.0
@@ -576,20 +590,182 @@ margin_top = 8.0
 margin_right = 562.0
 margin_bottom = 376.0
 custom_fonts/normal_font = SubResource( 67 )
-text = "Hello and welcome to NovetusFE, an optional Launcher for Novetus. Essentially, its just a frontend for all the heavy lifting and hard work that Bitl does, but I decided to be fancy and make my own frontend for looks. Well, aside from that, I do have big plans, but I would like to welcome you to NovetusFE.
-
-This is Alpha 0.2.0, the Server List update, obviously I took some inspiration from Minecraft.
-
-Welp, thats everything I have to say for now, checking for updates will come in a future version, so what can you do in NovetusFE? Join servers. Thats it, for now. Everything else is just kind of incomplete at the moment but I wanted to release to github so others could see the code, give me recommendations and in general, just have it be open source.
-
-So yeah, have fun I guess lol, Lachrymogenic."
+text = "Welcome to NovetusFE. This is a first time Setup."
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Button" type="Button" parent="Background/FirstTime/Panel"]
 margin_left = 370.0
 margin_top = 344.0
 margin_right = 548.0
 margin_bottom = 368.0
-text = "This was rushed, wasnt it?"
+custom_fonts/font = ExtResource( 8 )
+custom_styles/hover = SubResource( 20 )
+custom_styles/focus = SubResource( 20 )
+custom_styles/normal = SubResource( 19 )
+text = "Ok, we're good."
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TabContainer" type="TabContainer" parent="Background/FirstTime/Panel"]
+margin_top = 32.0
+margin_right = 562.0
+margin_bottom = 336.0
+custom_styles/panel = SubResource( 79 )
+tabs_visible = false
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Linux" type="Tabs" parent="Background/FirstTime/Panel/TabContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="WinePrefix2" type="Button" parent="Background/FirstTime/Panel/TabContainer/Linux"]
+margin_left = 10.0
+margin_top = 104.0
+margin_right = 282.0
+margin_bottom = 168.0
+custom_fonts/font = SubResource( 80 )
+custom_styles/hover = SubResource( 20 )
+custom_styles/focus = SubResource( 20 )
+custom_styles/normal = SubResource( 19 )
+text = "Where is your Wine Executable?"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FileDialog" type="FileDialog" parent="Background/FirstTime/Panel/TabContainer/Linux/WinePrefix2"]
+margin_left = -8.0
+margin_top = -40.0
+margin_right = 560.0
+margin_bottom = 320.0
+window_title = "Open a File"
+mode = 0
+access = 2
+current_dir = "/home/lachrymogenic/NovetusFE"
+current_path = "/home/lachrymogenic/NovetusFE/"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="OpenNovetus" type="Button" parent="Background/FirstTime/Panel/TabContainer/Linux"]
+margin_left = 10.0
+margin_top = 176.0
+margin_right = 282.0
+margin_bottom = 240.0
+custom_fonts/font = SubResource( 80 )
+custom_styles/hover = SubResource( 20 )
+custom_styles/focus = SubResource( 20 )
+custom_styles/normal = SubResource( 19 )
+text = "Open Novetus (Test)"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Background/FirstTime/Panel/TabContainer/Linux"]
+margin_left = 10.0
+margin_right = 546.0
+margin_bottom = 24.0
+custom_fonts/normal_font = SubResource( 67 )
+text = "You appear to be using Linux"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="Background/FirstTime/Panel/TabContainer/Linux"]
+margin_left = 10.0
+margin_top = 280.0
+margin_right = 354.0
+margin_bottom = 304.0
+custom_fonts/normal_font = SubResource( 67 )
+text = "If Novetus opens, you should be good to go."
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="WinePrefix" type="Button" parent="Background/FirstTime/Panel/TabContainer/Linux"]
+margin_left = 10.0
+margin_top = 32.0
+margin_right = 282.0
+margin_bottom = 96.0
+custom_fonts/font = SubResource( 81 )
+custom_styles/hover = SubResource( 20 )
+custom_styles/focus = SubResource( 20 )
+custom_styles/normal = SubResource( 19 )
+text = "Where is your Wine Prefix?"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FileDialog" type="FileDialog" parent="Background/FirstTime/Panel/TabContainer/Linux/WinePrefix"]
+margin_left = -8.0
+margin_top = -40.0
+margin_right = 560.0
+margin_bottom = 320.0
+window_title = "Open a Directory"
+mode = 2
+access = 2
+current_dir = "/home/lachrymogenic/NovetusFE"
+current_path = "/home/lachrymogenic/NovetusFE/"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="WinePrefixText" type="LineEdit" parent="Background/FirstTime/Panel/TabContainer/Linux"]
+margin_left = 298.0
+margin_top = 32.0
+margin_right = 554.0
+margin_bottom = 96.0
+custom_fonts/font = ExtResource( 8 )
+align = 1
+placeholder_text = "Wine Prefix"
+caret_blink = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="WinePathText" type="LineEdit" parent="Background/FirstTime/Panel/TabContainer/Linux"]
+margin_left = 298.0
+margin_top = 104.0
+margin_right = 554.0
+margin_bottom = 168.0
+custom_fonts/font = ExtResource( 8 )
+align = 1
+placeholder_text = "Wine Executable"
+caret_blink = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="NeverShow" type="CheckBox" parent="Background/FirstTime/Panel/TabContainer/Linux"]
+margin_left = 298.0
+margin_top = 176.0
+margin_right = 554.0
+margin_bottom = 240.0
+custom_fonts/font = SubResource( 82 )
+text = "Never show this window again"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Windows" type="Tabs" parent="Background/FirstTime/Panel/TabContainer"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Background/FirstTime/Panel/TabContainer/Windows"]
+margin_left = 10.0
+margin_top = -4.0
+margin_right = 546.0
+margin_bottom = 48.0
+custom_fonts/normal_font = SubResource( 67 )
+text = "You appear to be using WIndows, so for now, theres nothing you should worry about, so, crack on!"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="Main" type="Control" parent="."]
 anchor_left = 0.5
@@ -789,6 +965,9 @@ margin_right = 171.0
 margin_bottom = 77.0
 custom_fonts/normal_font = ExtResource( 8 )
 text = "Wine Prefix"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="WPBox2" type="TextEdit" parent="Main/Settings/Linux Settings/Panel"]
 margin_left = 27.0
@@ -822,10 +1001,10 @@ smooth_scrolling = true
 [node name="RichTextLabel5" type="RichTextLabel" parent="Main/Settings/Linux Settings/Panel"]
 margin_left = 27.0
 margin_top = 296.0
-margin_right = 435.0
+margin_right = 341.0
 margin_bottom = 328.0
 custom_fonts/normal_font = ExtResource( 8 )
-text = "Leave blank for no custom wine or terminal"
+text = "Leave blank for no custom wine"
 
 [node name="Button" type="Button" parent="Main/Settings/Linux Settings/Panel"]
 margin_left = 27.0
@@ -846,18 +1025,6 @@ custom_fonts/font = ExtResource( 8 )
 custom_styles/hover = SubResource( 20 )
 custom_styles/normal = SubResource( 19 )
 text = "Save"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="CheckBox" type="CheckBox" parent="Main/Settings/Linux Settings/Panel"]
-margin_left = 27.0
-margin_top = 168.0
-margin_right = 207.0
-margin_bottom = 208.0
-custom_fonts/font = ExtResource( 8 )
-text = "Run in Console?"
-flat = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -1903,6 +2070,12 @@ __meta__ = {
 
 [connection signal="text_entered" from="Background/Control2/LineEdit" to="." method="workingdirectory_text_entered"]
 [connection signal="pressed" from="Background/FirstTime/Panel/Button" to="." method="Firsttime_Button_pressed"]
+[connection signal="pressed" from="Background/FirstTime/Panel/TabContainer/Linux/WinePrefix2" to="." method="_on_WinePrefix2_pressed"]
+[connection signal="dir_selected" from="Background/FirstTime/Panel/TabContainer/Linux/WinePrefix2/FileDialog" to="." method="wine_exec_dir_selected"]
+[connection signal="file_selected" from="Background/FirstTime/Panel/TabContainer/Linux/WinePrefix2/FileDialog" to="." method="wine_exec_file_selected"]
+[connection signal="pressed" from="Background/FirstTime/Panel/TabContainer/Linux/OpenNovetus" to="." method="_on_OpenNovetus_pressed"]
+[connection signal="pressed" from="Background/FirstTime/Panel/TabContainer/Linux/WinePrefix" to="." method="_on_WinePrefix_pressed"]
+[connection signal="dir_selected" from="Background/FirstTime/Panel/TabContainer/Linux/WinePrefix/FileDialog" to="." method="wineprefix_dir_selected"]
 [connection signal="item_activated" from="Main/Menu/ItemList" to="." method="main_item_activated"]
 [connection signal="item_activated" from="Main/Multiplayer/ItemList" to="." method="multiplayert_item_activated"]
 [connection signal="item_activated" from="Main/Studio/ItemList" to="." method="studio_item_activated"]
