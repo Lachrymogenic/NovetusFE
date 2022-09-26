@@ -10,6 +10,7 @@ var CurrentMenu
 var CTheme
 var Drive = "Z:"
 
+var NovetusConfig
 var Version = "2009E"
 var PlayerName = "Noob"
 var Map = ""
@@ -18,6 +19,7 @@ var NewServerTexturePath
 var NewServerIcons = []
 var ServerIndex
 var Servers 
+var Resolutions = [Vector2(700, 600),Vector2(1280,720)]
 var serverconfig = ConfigFile.new()
 onready var WorkingDirectory = OS.get_executable_path().get_base_dir()
 
@@ -55,7 +57,8 @@ func _ready():
 	if !dir.dir_exists(WorkingDirectory + "/NovetusFE"): dir.make_dir(WorkingDirectory + "/NovetusFE")
 	if !dir.dir_exists(WorkingDirectory + "/NovetusFE/themes"): dir.make_dir(WorkingDirectory + "/NovetusFE/themes")
 	loadconfig("/NovetusFE/nfeconfig.ini")
-	for i in customconfig("/config/config.ini"):
+	NovetusConfig = customconfig("/config/config.ini")
+	for i in NovetusConfig:
 		if "SelectedClient=" in i:
 			Version = i.replace("SelectedClient=","")
 		if "PlayerName=" in i:
@@ -67,6 +70,8 @@ func _ready():
 	$Background/Info.text = $Background/Info.text.replace("%CLIENT%",Version)
 	$Background/Info.text = $Background/Info.text.replace("%MAP%",Map)
 	$Main/Serverlist/Versions.text = Version
+	for i in Resolutions:
+		$"Main/Settings/General Settings/Panel/ResolutionList".add_item(str(i).replace("(","").replace(")",""))
 	#$Main/Menu.visible = false
 
 func customconfig(configfile):
@@ -86,6 +91,7 @@ func loadconfig(arg):
 		"/NovetusFE/nfeconfig.ini":
 			LinuxWinePrefix = config.get_value("Linux Settings", "wineprefix")
 			LinuxWinePath = config.get_value("Linux Settings", "wine_exec_path")
+			OS.window_size = config.get_value("General Settings", "resolution",Vector2(700,600))
 			$Background/FirstTime/Panel/TabContainer/Linux/WinePathText.text = LinuxWinePath
 			$Background/FirstTime/Panel/TabContainer/Linux/WinePrefixText.text = LinuxWinePrefix
 			$Main/Menu.visible = config.get_value("General Settings", "first_time_setup",false)
@@ -113,7 +119,7 @@ func main_item_activated(index):
 			menu("Multiplayer")
 			$Main/Multiplayer/ItemList.grab_focus()
 		"Versions":
-			$Main/VersionsWindow.popup()
+			$Main/VersionsWindow.popup_centered()
 			$Main/VersionsWindow/Versions/ItemList.grab_focus()
 
 func settings_item_activated(index):
@@ -130,30 +136,38 @@ func settings_item_activated(index):
 			
 			#$Main/Settings/ItemList.grab_focus()
 			
-func launch(program,arg=""):
+func launch(program, args=[]):
+	## Important launching function.
+	var currentargs
 	$OverlayLayer/Overlay.visible = true
 	yield(get_tree().create_timer(1),"timeout")
 	match OS.get_name():
 		"Windows":
-			if arg == "":
+			if args.empty():
 				#OS.shell_open(WorkingDirectory + program)
 				OS.execute(WorkingDirectory + program,[])
 			else:
-				OS.execute(WorkingDirectory + program,[arg])
+				OS.execute(WorkingDirectory + program,PoolStringArray(args))
 		"X11":
+			# If your linux wine prefix and wine path are both set to, well, nothing, then
+			# Godot will use Shell Open instead of Execute, but if you have set just the prefix then
+			# Godot will open normal wine using your specified prefix.
 			if LinuxWinePrefix == "":
 				if LinuxWinePath !="":
 					OS.execute(LinuxWinePath,[WorkingDirectory + program])
 				else:
 					OS.shell_open(WorkingDirectory + program)
 			else:
-				if arg == "":
-					#WorkingDirectory = "."
-					#OS.execute("konsole",["--noclose", "-e", "sh", WorkingDirectory + "/Start.sh", LinuxWinePrefix, LinuxWinePath, WorkingDirectory + program])
-					OS.execute("sh",[WorkingDirectory + "/Start.sh", LinuxWinePrefix, LinuxWinePath, WorkingDirectory + program])
-				else:
-					OS.execute("sh",[WorkingDirectory + "/Start.sh", LinuxWinePrefix, LinuxWinePath, WorkingDirectory + program, arg])
+				currentargs = [WorkingDirectory + "/Start.sh", LinuxWinePrefix, LinuxWinePath, WorkingDirectory + program]
+				if args.empty() == false:
+					currentargs.append_array(args)
+					#for i in args:
+					#	currentargs.append(i)
+				print(args)
+				print(PoolStringArray(currentargs))
+				OS.execute("sh",PoolStringArray(currentargs))
 	$OverlayLayer/Overlay.visible = false
+	
 func menu(menu, parent=$Main):
 	for i in $Main.get_children():
 		if i is Control:
@@ -181,13 +195,13 @@ func saveconfig():
 	config.set_value("Linux Settings", "wineprefix", $"Main/Settings/Linux Settings/Panel/WPBox".text)
 	config.set_value("Linux Settings", "wine_exec_path", $"Main/Settings/Linux Settings/Panel/WPBox2".text)
 	config.set_value("General Settings", "savedicons", NewServerIcons)
+	config.set_value("General Settings", "resolution", OS.window_size)
 	config.set_value("General Settings", "first_time_setup", $Background/FirstTime/Panel/TabContainer/Linux/NeverShow.pressed)
 	config.save(WorkingDirectory + "/NovetusFE/nfeconfig.ini")
 	if CTheme != null: get_tree().change_scene_to(CTheme)
 
 func _on_ThemeButton_pressed():
 	pass # Replace with function body.
-
 
 func _on_MenuButton_about_to_show():
 	$"Main/Settings/General Settings/Panel/OptionButton".clear()
@@ -225,6 +239,7 @@ func versionslist_activated(index):
 		_:
 			Version = $Main/VersionsWindow/Versions/ItemList.get_item_text(index)
 			$Main/VersionsWindow.visible = false
+	savenovetusconfig()
 	$Background/Info.text = "Hello, %PLAYER%! Client Selected: %CLIENT%, Map Selected: %MAP%"
 	$Background/Info.text = $Background/Info.text.replace("%PLAYER%",PlayerName)
 	$Background/Info.text = $Background/Info.text.replace("%CLIENT%",Version)
@@ -239,18 +254,18 @@ func studio_item_activated(index):
 		"Launch without map":
 			launch("/clients/"+ Version + "/RobloxApp_studio.exe")
 		"Launch with map":
-			launch("/clients/"+ Version + "/RobloxApp_studio.exe", Drive + Map)
+			launch("/clients/"+ Version + "/RobloxApp_studio.exe", [Drive + Map])
 		"Play Solo":
-			launch("/clients/"+ Version + "/RobloxApp_solo.exe", Drive + Map)
+			launch("/clients/"+ Version + "/RobloxApp_solo.exe", [Drive + Map])
 			
 func _input(event):
 	if Input.is_action_just_pressed("versions"):
-		$Main/VersionsWindow.popup()
+		$Main/VersionsWindow.popup_centered()
 	if Input.is_action_just_pressed("map"):
 		$Main/Maps.current_dir = WorkingDirectory + "/maps"
-		$Main/Maps.popup()
+		$Main/Maps.popup_centered()
 	if Input.is_action_just_pressed("charcus"):
-		$Main/CharCus.popup()
+		$Main/CharCus.popup_centered()
 
 
 func _on_Maps_confirmed():
@@ -267,7 +282,7 @@ func _on_Maps_confirmed():
 
 func DirectConnect_Join_pressed():
 	var uri = to_uri($Main/DirectConnectWindow/LineEdit.text.split(":")[0].to_ascii().get_string_from_ascii(),$Main/DirectConnectWindow/LineEdit.text.split(":")[1].to_ascii().get_string_from_ascii())
-	launch("/bin/NovetusURI.exe novetus://" + uri)
+	launch("/bin/NovetusURI.exe",["novetus://" + uri])
 
 func to_uri(ip, port):
 	var uri = Marshalls.utf8_to_base64(ip) + "|" + Marshalls.utf8_to_base64(port) + "|" + Marshalls.utf8_to_base64(Version)
@@ -275,14 +290,17 @@ func to_uri(ip, port):
 	return uri
 
 func _on_DirectConnect_pressed():
-	$Main/DirectConnectWindow.popup()
+	$Main/DirectConnectWindow.popup_centered()
 
 func multiplayert_item_activated(index):
 	match $Main/Multiplayer/ItemList.get_item_text(index):
 		"Join":
-			#$Main/DirectConnectWindow.popup()
-			$Main/Serverlist.popup()
+			#$Main/DirectConnectWindow.popup_centered()
+			$Main/Serverlist.popup_centered()
 			refreshserverlist()
+		"Host":
+			#$Main/DirectConnectWindow.popup_centered()
+			$Main/HostWindow.popup_centered()
 		"Back":
 			menu("")
 			$Main/Menu/ItemList.grab_focus()
@@ -296,11 +314,11 @@ func Firsttime_Button_pressed():
 	saveconfig()
 
 func _on_AddServer_pressed():
-	$Main/AddServerWindow.popup()
+	$Main/AddServerWindow.popup_centered()
 
 func new_icon_pressed():
 	$Main/AddServerWindow/ImageSelect.current_dir = WorkingDirectory
-	$Main/AddServerWindow/ImageSelect.popup()
+	$Main/AddServerWindow/ImageSelect.popup_centered()
 
 func _on_ImageSelect_file_selected(path):
 	NewServerIcons.append(path)
@@ -386,12 +404,12 @@ func mplist_item_selected(index):
 func _on_Join_pressed():
 	var e = $Main/Serverlist/ItemList.get_item_text(ServerIndex)
 	serverconfig.load(WorkingDirectory + "/NovetusFE/servers.ini")
-	launch("/bin/NovetusURI.exe " + to_uri(serverconfig.get_value(e,"ip"),serverconfig.get_value(e,"port")))
+	launch("/bin/NovetusURI.exe", ["novetus://" + to_uri(serverconfig.get_value(e,"ip"),serverconfig.get_value(e,"port"))])
 	
 
 func multi_Versions_pressed():
 	$Main/Serverlist/Versions.text = Version
-	$Main/VersionsWindow.popup()
+	$Main/VersionsWindow.popup_centered()
 
 func multi_closed():
 	$Main/Serverlist.visible = false
@@ -401,7 +419,7 @@ func multi_edit_pressed():
 	serverconfig.load(WorkingDirectory + "/NovetusFE/servers.ini")
 	$Main/EditServerWindow/LineEdit2.text = e
 	$Main/EditServerWindow/LineEdit.text = serverconfig.get_value(e,"ip") + ":" + serverconfig.get_value(e,"port")
-	$Main/EditServerWindow.popup()
+	$Main/EditServerWindow.popup_centered()
 
 func delete_server_pressed():
 	serverconfig.load(WorkingDirectory + "/NovetusFE/servers.ini")
@@ -443,3 +461,28 @@ func wine_exec_file_selected(path):
 
 func _on_OpenNovetus_pressed():
 	launch("/bin/Novetus.exe")
+
+func _on_ResolutionList_item_selected(index):
+	OS.window_size = Vector2($"Main/Settings/General Settings/Panel/ResolutionList".get_item_text(index).replace(" ","").split(",")[0], $"Main/Settings/General Settings/Panel/ResolutionList".get_item_text(index).replace(" ","").split(",")[1])
+
+func _on_Maps_pressed():
+	$Main/Maps.popup_centered()
+	
+func savenovetusconfig():
+	var counter = 0
+	for i in NovetusConfig:
+		var e = i.split("=")
+		if e.size() >= 2:
+			if "SelectedClient=" in i:
+				e[1] = Version
+			e = e[0] + "=" + e[1]
+			NovetusConfig[counter] = e
+		counter += 1
+	print(NovetusConfig)
+
+func _on_Host_pressed():
+	var args = [""]
+	if $Main/HostWindow/UPNPBox.pressed: args.append("-upnp")
+	if $Main/HostWindow/No3DBox.pressed: args.append("-no3d")
+	if $Main/HostWindow/NotificationsBox.pressed: args.append("-notifications true")
+	launch("/bin/NovetusCMD", args)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=88 format=2]
+[gd_scene load_steps=89 format=2]
 
 [ext_resource path="res://textures/hZZ7X7.png" type="Texture" id=1]
 [ext_resource path="res://textures/multiplayer.png" type="Texture" id=2]
@@ -228,6 +228,10 @@ border_width_bottom = 2
 
 [sub_resource type="DynamicFont" id=21]
 size = 25
+font_data = ExtResource( 6 )
+
+[sub_resource type="DynamicFont" id=83]
+size = 20
 font_data = ExtResource( 6 )
 
 [sub_resource type="StyleBoxFlat" id=28]
@@ -805,14 +809,13 @@ margin_bottom = 288.0
 custom_fonts/font = SubResource( 11 )
 custom_styles/selected_focus = ExtResource( 9 )
 custom_styles/bg = SubResource( 9 )
-items = [ "Multiplayer", ExtResource( 2 ), false, "Studio (Coming Soon)", ExtResource( 4 ), true, "Character Customization (Coming Soon)", ExtResource( 3 ), true, "Settings", ExtResource( 5 ), false, "Workshop (Coming Soon)", ExtResource( 5 ), true ]
+items = [ "Multiplayer", ExtResource( 2 ), false, "Studio", ExtResource( 4 ), false, "Character Customization (Coming Soon)", ExtResource( 3 ), true, "Settings", ExtResource( 5 ), false, "Workshop (Coming Soon)", ExtResource( 5 ), true ]
 fixed_icon_size = Vector2( 64, 64 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Multiplayer" type="Control" parent="Main"]
-visible = false
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -843,7 +846,7 @@ margin_bottom = 288.0
 custom_fonts/font = SubResource( 11 )
 custom_styles/selected_focus = ExtResource( 9 )
 custom_styles/bg = SubResource( 9 )
-items = [ "Join", ExtResource( 2 ), false, "Host (Coming Soon)", ExtResource( 3 ), true, "Back", ExtResource( 5 ), false ]
+items = [ "Join", ExtResource( 2 ), false, "Host", ExtResource( 3 ), false, "Back", ExtResource( 5 ), false ]
 fixed_icon_size = Vector2( 64, 64 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -881,7 +884,7 @@ margin_bottom = 288.0
 custom_fonts/font = SubResource( 11 )
 custom_styles/selected_focus = ExtResource( 9 )
 custom_styles/bg = SubResource( 9 )
-items = [ "Launch without map (Coming Soon)", ExtResource( 5 ), false, "Launch with map", ExtResource( 5 ), false, "Play Solo (Coming Soon)", ExtResource( 5 ), false, "Versions", ExtResource( 5 ), false, "Back", ExtResource( 5 ), false ]
+items = [ "Launch without map (Coming Soon)", ExtResource( 5 ), true, "Launch with map", ExtResource( 5 ), false, "Play Solo (Coming Soon)", ExtResource( 5 ), true, "Versions", ExtResource( 5 ), false, "Back", ExtResource( 5 ), false ]
 fixed_icon_size = Vector2( 64, 64 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -1055,6 +1058,28 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Resolution" type="RichTextLabel" parent="Main/Settings/General Settings/Panel"]
+margin_left = 29.0
+margin_top = 96.0
+margin_right = 277.0
+margin_bottom = 128.0
+custom_fonts/normal_font = SubResource( 83 )
+text = "Resolution"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Resolution2" type="RichTextLabel" parent="Main/Settings/General Settings/Panel"]
+margin_left = 29.0
+margin_top = 40.0
+margin_right = 277.0
+margin_bottom = 72.0
+custom_fonts/normal_font = SubResource( 83 )
+text = "Themes"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="Button" type="Button" parent="Main/Settings/General Settings/Panel"]
 margin_left = 27.0
 margin_top = 328.0
@@ -1079,10 +1104,10 @@ __meta__ = {
 }
 
 [node name="ThemeButton" type="Button" parent="Main/Settings/General Settings/Panel"]
-margin_left = 227.0
-margin_top = 53.0
-margin_right = 362.0
-margin_bottom = 82.0
+margin_left = 229.0
+margin_top = 64.0
+margin_right = 364.0
+margin_bottom = 93.0
 custom_fonts/font = ExtResource( 8 )
 custom_styles/hover = SubResource( 28 )
 custom_styles/normal = SubResource( 25 )
@@ -1092,14 +1117,27 @@ __meta__ = {
 }
 
 [node name="OptionButton" type="OptionButton" parent="Main/Settings/General Settings/Panel"]
-margin_left = 27.0
-margin_top = 53.0
-margin_right = 219.0
-margin_bottom = 82.0
+margin_left = 29.0
+margin_top = 64.0
+margin_right = 221.0
+margin_bottom = 93.0
 custom_fonts/font = ExtResource( 8 )
 custom_styles/hover = SubResource( 26 )
 custom_styles/normal = SubResource( 27 )
 text = "Themes"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ResolutionList" type="OptionButton" parent="Main/Settings/General Settings/Panel"]
+margin_left = 29.0
+margin_top = 120.0
+margin_right = 221.0
+margin_bottom = 149.0
+custom_fonts/font = ExtResource( 8 )
+custom_styles/hover = SubResource( 26 )
+custom_styles/normal = SubResource( 27 )
+text = "Resolution"
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -1511,7 +1549,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Join" type="Button" parent="Main/HostWindow"]
+[node name="Host" type="Button" parent="Main/HostWindow"]
 margin_left = 72.0
 margin_top = 312.0
 margin_right = 200.0
@@ -1522,7 +1560,7 @@ custom_styles/disabled = SubResource( 64 )
 custom_styles/normal = SubResource( 56 )
 text = "Host"
 
-[node name="DirectConnect" type="Button" parent="Main/HostWindow"]
+[node name="Maps" type="Button" parent="Main/HostWindow"]
 margin_left = 216.0
 margin_top = 312.0
 margin_right = 376.0
@@ -1533,7 +1571,7 @@ custom_styles/disabled = SubResource( 64 )
 custom_styles/normal = SubResource( 56 )
 text = "Maps"
 
-[node name="AddServer" type="Button" parent="Main/HostWindow"]
+[node name="Addons" type="Button" parent="Main/HostWindow"]
 margin_left = 392.0
 margin_top = 312.0
 margin_right = 520.0
@@ -1542,6 +1580,7 @@ custom_fonts/font = SubResource( 63 )
 custom_styles/hover = SubResource( 55 )
 custom_styles/disabled = SubResource( 64 )
 custom_styles/normal = SubResource( 56 )
+disabled = true
 text = "Addons"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -1558,7 +1597,7 @@ custom_styles/disabled = SubResource( 64 )
 custom_styles/normal = SubResource( 56 )
 text = "Close"
 
-[node name="Edit" type="Button" parent="Main/HostWindow"]
+[node name="Presets" type="Button" parent="Main/HostWindow"]
 margin_left = 72.0
 margin_top = 352.0
 margin_right = 200.0
@@ -1567,6 +1606,7 @@ custom_fonts/font = SubResource( 63 )
 custom_styles/hover = SubResource( 55 )
 custom_styles/disabled = SubResource( 64 )
 custom_styles/normal = SubResource( 56 )
+disabled = true
 text = "Presets"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -1677,7 +1717,7 @@ margin_bottom = 195.0
 custom_fonts/font = SubResource( 77 )
 text = "Master Server IP"
 
-[node name="CheckBox" type="CheckBox" parent="Main/HostWindow"]
+[node name="No3DBox" type="CheckBox" parent="Main/HostWindow"]
 margin_left = 16.0
 margin_top = 256.0
 margin_right = 89.0
@@ -1688,7 +1728,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="CheckBox2" type="CheckBox" parent="Main/HostWindow"]
+[node name="UPNPBox" type="CheckBox" parent="Main/HostWindow"]
 margin_left = 96.0
 margin_top = 256.0
 margin_right = 169.0
@@ -1699,7 +1739,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="CheckBox3" type="CheckBox" parent="Main/HostWindow"]
+[node name="NotificationsBox" type="CheckBox" parent="Main/HostWindow"]
 margin_left = 16.0
 margin_top = 232.0
 margin_right = 141.0
@@ -2087,6 +2127,7 @@ __meta__ = {
 [connection signal="pressed" from="Main/Settings/General Settings/Panel/ThemeButton" to="." method="_on_ThemeButton_pressed"]
 [connection signal="button_down" from="Main/Settings/General Settings/Panel/OptionButton" to="." method="_on_MenuButton_about_to_show"]
 [connection signal="item_selected" from="Main/Settings/General Settings/Panel/OptionButton" to="." method="_on_OptionButton_item_selected"]
+[connection signal="item_selected" from="Main/Settings/General Settings/Panel/ResolutionList" to="." method="_on_ResolutionList_item_selected"]
 [connection signal="item_activated" from="Main/VersionsWindow/Versions/ItemList" to="." method="versionslist_activated"]
 [connection signal="confirmed" from="Main/Maps" to="." method="_on_Maps_confirmed"]
 [connection signal="item_selected" from="Main/Serverlist/ItemList" to="." method="mplist_item_selected"]
@@ -2096,6 +2137,8 @@ __meta__ = {
 [connection signal="pressed" from="Main/Serverlist/Close" to="." method="multi_closed"]
 [connection signal="pressed" from="Main/Serverlist/Edit" to="." method="multi_edit_pressed"]
 [connection signal="pressed" from="Main/Serverlist/Versions" to="." method="multi_Versions_pressed"]
+[connection signal="pressed" from="Main/HostWindow/Host" to="." method="_on_Host_pressed"]
+[connection signal="pressed" from="Main/HostWindow/Maps" to="." method="_on_Maps_pressed"]
 [connection signal="pressed" from="Main/HostWindow/Versions" to="." method="multi_Versions_pressed"]
 [connection signal="pressed" from="Main/DirectConnectWindow/Join" to="." method="DirectConnect_Join_pressed"]
 [connection signal="pressed" from="Main/DirectConnectWindow/Close" to="." method="DirectConnect_Close_pressed"]
