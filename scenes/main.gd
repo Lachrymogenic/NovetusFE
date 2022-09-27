@@ -1,5 +1,7 @@
 extends Control
 
+# This script is extremely messy, I know, please use CTRL+F
+
 var LinuxWinePrefix
 var LinuxWinePath
 var LinuxTerminal = "sh"
@@ -9,11 +11,27 @@ var dir = Directory.new()
 var CurrentMenu
 var CTheme
 var Drive = "Z:"
+var PublicIP = ""
 
+# Novetus Config Stuff
 var NovetusConfig
 var Version = "2009E"
 var PlayerName = "Noob"
+var UserID = "0"
+var RobloxPort = "53640"
 var Map = ""
+var PlayerLimit = "12"
+var UPnP = "False"
+var DiscordRichPresence = "False"
+var GraphicsMode
+var QualityLevel
+var ShowServerNotifications = "False"
+var ServerBrowserServerName = "Novetus"
+var MasterServer = "localhost"
+var URI = "?"
+var NovetusVersion
+
+var http = HTTPRequest.new()
 var NewServerTexture = load("res://textures/charcustom.png")
 var NewServerTexturePath
 var NewServerIcons = []
@@ -21,12 +39,15 @@ var ServerIndex
 var Servers 
 var Resolutions = [Vector2(700, 600),Vector2(1280,720)]
 var serverconfig = ConfigFile.new()
+onready var keepupdated = [$Main/HostWindow/ServerDeets,$Background/Info]
+var keepupdatedtags = {}
 onready var WorkingDirectory = OS.get_executable_path().get_base_dir()
 
 func _ready():
+	add_child(http)
+	http.connect("request_completed", self, "_http_request_completed")
 	OS.min_window_size = Vector2(700, 600)
 	OS.max_window_size = Vector2(1920, 1080)
-	#WorkingDirectory = OS.get_executable_path().get_base_dir()
 	if !f.file_exists(WorkingDirectory + "/bin/Novetus.exe"):
 		WorkingDirectory = OS.get_executable_path().get_base_dir() + "/.."
 		print(WorkingDirectory)
@@ -58,21 +79,56 @@ func _ready():
 	if !dir.dir_exists(WorkingDirectory + "/NovetusFE/themes"): dir.make_dir(WorkingDirectory + "/NovetusFE/themes")
 	loadconfig("/NovetusFE/nfeconfig.ini")
 	NovetusConfig = customconfig("/config/config.ini")
+	var NovetusInfo = customconfig("/config/info.ini")
+	var branch
+	var rev
+	for i in NovetusInfo:
+		if "IsLite=" in i:
+			if i.split("=")[1] == "True":
+				NovetusVersion = NovetusVersion.replace("%lite%"," Lite")
+			else:
+				NovetusVersion = NovetusVersion.replace("%lite%","")
+		if "Branch=" in i:
+			branch = i.replace("Branch=","")
+		if "ExtendedVersionRevision=" in i:
+			rev = i.replace("ExtendedVersionRevision=","")
+			NovetusVersion = NovetusVersion.replace("%extended-revision%",rev)
+		if "ExtendedVersionTemplate=" in i:
+			if not "//" in i:
+				NovetusVersion = i.replace("ExtendedVersionTemplate=","").replace("%version%",branch)
 	for i in NovetusConfig:
 		if "SelectedClient=" in i:
 			Version = i.replace("SelectedClient=","")
+		if "MapPath=" in i:
+			Map = i.replace("MapPath=","").replace("Z:\\\\","").replace("C:\\\\","").replace("Z://","").replace("C://","").replace("\\\\","//")
 		if "PlayerName=" in i:
 			PlayerName = i.replace("PlayerName=","")
 	for i in list_files_in_directory(WorkingDirectory + "/clients/"):
 		$Main/VersionsWindow/Versions/ItemList.add_item(i, load("res://textures/studio.png"))
 	$Main/VersionsWindow/Versions/ItemList.sort_items_by_text()
-	$Background/Info.text = $Background/Info.text.replace("%PLAYER%",PlayerName)
-	$Background/Info.text = $Background/Info.text.replace("%CLIENT%",Version)
-	$Background/Info.text = $Background/Info.text.replace("%MAP%",Map)
+	updateinfo()
 	$Main/Serverlist/Versions.text = Version
+	if Map != "": $Main/HostWindow/Host.disabled = false
 	for i in Resolutions:
 		$"Main/Settings/General Settings/Panel/ResolutionList".add_item(str(i).replace("(","").replace(")",""))
-	#$Main/Menu.visible = false
+
+func _http_request_completed(result, response_code, headers, body):
+	var response = parse_json(body.get_string_from_utf8()).ip
+	PublicIP = response
+	print("help")
+	updateinfo()
+	http.disconnect("request_completed", self, "_http_request_completed")
+
+func updateinfo():
+	http.request("https://api.ipify.org/?format=json")
+	$Background/Info.text = "Hello, %PLAYER%! Client Selected: %CLIENT%, Map Selected: %MAP%"
+	$Main/HostWindow/ServerDeets.text = "Map: %MAP%\nPlayers: %PLAYERS%\nIP: %IP%\nPort: %PORT%\nClient: %CLIENT%\nNovetus Version: %NOVEVER%\nMaster Server: %MASTERSERVER%\nURI: %URI%"
+	if PublicIP != "": URI = "novetus://" + to_uri(PublicIP, RobloxPort)
+	keepupdatedtags = {"%PLAYER%":PlayerName,"%CLIENT%":Version,"%MAP%":Map.split("//")[-1],"%PORT%":RobloxPort,
+	"%PLAYERS%":PlayerLimit,"%MASTERSERVER%":MasterServer,"%URI%":URI,"%IP%":PublicIP,"%NOVEVER%":NovetusVersion}
+	for i in keepupdated:
+		for v in keepupdatedtags:
+			i.text = i.text.replace(v,keepupdatedtags[v])
 
 func customconfig(configfile):
 	var config = File.new()
@@ -239,24 +295,24 @@ func versionslist_activated(index):
 		_:
 			Version = $Main/VersionsWindow/Versions/ItemList.get_item_text(index)
 			$Main/VersionsWindow.visible = false
+	if $Main/HostWindow/UPNPBox.pressed: UPnP = "True"; else: UPnP = "False"
+	if $Main/HostWindow/NotificationsBox.pressed: ShowServerNotifications = "True"; else: ShowServerNotifications = "False"
 	savenovetusconfig()
-	$Background/Info.text = "Hello, %PLAYER%! Client Selected: %CLIENT%, Map Selected: %MAP%"
-	$Background/Info.text = $Background/Info.text.replace("%PLAYER%",PlayerName)
-	$Background/Info.text = $Background/Info.text.replace("%CLIENT%",Version)
+	updateinfo()
 	$Main/Serverlist/Versions.text = Version
-	$Background/Info.text = $Background/Info.text.replace("%MAP%",$Main/Maps.current_file)
+	
 
 func studio_item_activated(index):
 	match $Main/Studio/ItemList.get_item_text(index):
 		"Back":
 			menu("")
 			$Main/Studio/ItemList.grab_focus()
-		"Launch without map":
-			launch("/clients/"+ Version + "/RobloxApp_studio.exe")
+		"Maps":
+			$Main/Maps.popup_centered()
 		"Launch with map":
 			launch("/clients/"+ Version + "/RobloxApp_studio.exe", [Drive + Map])
-		"Play Solo":
-			launch("/clients/"+ Version + "/RobloxApp_solo.exe", [Drive + Map])
+		"Versions":
+			$Main/VersionsWindow.popup_centered()
 			
 func _input(event):
 	if Input.is_action_just_pressed("versions"):
@@ -267,16 +323,13 @@ func _input(event):
 	if Input.is_action_just_pressed("charcus"):
 		$Main/CharCus.popup_centered()
 
-
-func _on_Maps_confirmed():
+func _on_Maps_confirmed(path):
 	print($Main/Maps.current_file)
 	Map = str($Main/Maps.current_dir.replace(WorkingDirectory,"") + "/" + $Main/Maps.current_file)
 	Map = Map.replacen("/","//")
 	Map = WorkingDirectory.replacen("/","//") + Map
-	$Background/Info.text = "Hello, %PLAYER%! Client Selected: %CLIENT%, Map Selected: %MAP%"
-	$Background/Info.text = $Background/Info.text.replace("%PLAYER%",PlayerName)
-	$Background/Info.text = $Background/Info.text.replace("%CLIENT%",Version)
-	$Background/Info.text = $Background/Info.text.replace("%MAP%",$Main/Maps.current_file)
+	updateinfo()
+	$Main/HostWindow/Host.disabled = false
 	print(Map)
 
 
@@ -475,14 +528,40 @@ func savenovetusconfig():
 		if e.size() >= 2:
 			if "SelectedClient=" in i:
 				e[1] = Version
+			if "UPnP=" in i:
+				e[1] = UPnP
+			if "ServerBrowserServerName=" in i:
+				e[1] = ServerBrowserServerName
+			if "RobloxPort=" in i:
+				e[1] = RobloxPort
+			if "ServerBrowserServerAddress=" in i:
+				e[1] = MasterServer
+			if "Map=" in i:
+				e[1] = Map.split("//")[-1]
+			if "ShowServerNotifications=" in i:
+				e[1] = ShowServerNotifications
+			if "MapPath=" in i:
+				e[1] = Drive + Map.replace("//","\\\\")
+			if "MapPathSnip=" in i:
+				print(Map.split("//"))
+				e[1] = Map.split("//")[-2] + "\\\\" + Map.split("//")[-1]
 			e = e[0] + "=" + e[1]
 			NovetusConfig[counter] = e
 		counter += 1
 	print(NovetusConfig)
+	f.open(WorkingDirectory + "/config/config.ini", File.WRITE)
+	for i in NovetusConfig:
+		f.store_line(i)
+	f.close()
 
 func _on_Host_pressed():
-	var args = [""]
-	if $Main/HostWindow/UPNPBox.pressed: args.append("-upnp")
+	if $Main/HostWindow/ServerNameLine.text != "": ServerBrowserServerName = $Main/HostWindow/ServerNameLine.text
+	if $Main/HostWindow/ServerPortLine.text != "": RobloxPort = $Main/HostWindow/ServerPortLine.text
+	if $Main/HostWindow/PlayerLimitLine.text != "": PlayerLimit = $Main/HostWindow/PlayerLimitLine.text
+	if $Main/HostWindow/MasterServerLine.text != "": MasterServer = $Main/HostWindow/MasterServerLine.text
+	if $Main/HostWindow/UPNPBox.pressed: UPnP = "True"; else: UPnP = "False"
+	if $Main/HostWindow/NotificationsBox.pressed: ShowServerNotifications = "True"; else: ShowServerNotifications = "False"
+	savenovetusconfig()
+	var args = []
 	if $Main/HostWindow/No3DBox.pressed: args.append("-no3d")
-	if $Main/HostWindow/NotificationsBox.pressed: args.append("-notifications true")
 	launch("/bin/NovetusCMD", args)

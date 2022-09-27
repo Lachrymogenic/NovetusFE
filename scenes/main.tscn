@@ -1,4 +1,4 @@
-[gd_scene load_steps=89 format=2]
+[gd_scene load_steps=90 format=2]
 
 [ext_resource path="res://textures/hZZ7X7.png" type="Texture" id=1]
 [ext_resource path="res://textures/multiplayer.png" type="Texture" id=2]
@@ -420,6 +420,13 @@ border_color = Color( 0.294118, 0.294118, 0.294118, 1 )
 [sub_resource type="DynamicFont" id=76]
 font_data = ExtResource( 6 )
 
+[sub_resource type="StyleBoxFlat" id=84]
+bg_color = Color( 0.0862745, 0.0823529, 0.172549, 1 )
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+
 [sub_resource type="StyleBoxFlat" id=65]
 content_margin_left = 5.0
 bg_color = Color( 0.0588235, 0.0470588, 0.145098, 1 )
@@ -816,6 +823,7 @@ __meta__ = {
 }
 
 [node name="Multiplayer" type="Control" parent="Main"]
+visible = false
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -884,7 +892,7 @@ margin_bottom = 288.0
 custom_fonts/font = SubResource( 11 )
 custom_styles/selected_focus = ExtResource( 9 )
 custom_styles/bg = SubResource( 9 )
-items = [ "Launch without map (Coming Soon)", ExtResource( 5 ), true, "Launch with map", ExtResource( 5 ), false, "Play Solo (Coming Soon)", ExtResource( 5 ), true, "Versions", ExtResource( 5 ), false, "Back", ExtResource( 5 ), false ]
+items = [ "Launch without map (Coming Soon)", ExtResource( 5 ), true, "Launch with map", ExtResource( 5 ), false, "Maps", ExtResource( 5 ), false, "Versions", ExtResource( 5 ), false, "Back", ExtResource( 5 ), false ]
 fixed_icon_size = Vector2( 64, 64 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -1178,10 +1186,10 @@ margin_left = -266.0
 margin_top = -72.0
 margin_right = 318.0
 margin_bottom = 296.0
+popup_exclusive = true
 window_title = "Open a File"
 resizable = true
-dialog_text = "huh"
-dialog_hide_on_ok = true
+dialog_text = "Test"
 mode = 0
 access = 2
 current_dir = "/home/lachrymogenic/Documents/novetus/maps"
@@ -1527,6 +1535,7 @@ custom_styles/normal = SubResource( 56 )
 text = "Version"
 
 [node name="HostWindow" type="WindowDialog" parent="Main"]
+visible = true
 margin_left = -266.0
 margin_top = -104.0
 margin_right = 318.0
@@ -1558,6 +1567,7 @@ custom_fonts/font = SubResource( 63 )
 custom_styles/hover = SubResource( 55 )
 custom_styles/disabled = SubResource( 64 )
 custom_styles/normal = SubResource( 56 )
+disabled = true
 text = "Host"
 
 [node name="Maps" type="Button" parent="Main/HostWindow"]
@@ -1623,25 +1633,28 @@ custom_styles/disabled = SubResource( 64 )
 custom_styles/normal = SubResource( 56 )
 text = "Version"
 
-[node name="RichTextLabel" type="RichTextLabel" parent="Main/HostWindow"]
-margin_left = 176.0
-margin_top = 8.0
-margin_right = 448.0
+[node name="ServerDeets" type="RichTextLabel" parent="Main/HostWindow"]
+margin_left = 192.0
+margin_top = 32.0
+margin_right = 544.0
 margin_bottom = 224.0
 focus_mode = 2
 custom_fonts/normal_font = SubResource( 76 )
-text = "Server Information:
+custom_styles/normal = SubResource( 84 )
+text = "Map: %MAP%
+Players: %PLAYERS%
 IP: %IP%
 Port: %PORT%
 Client: %CLIENT%
-Map: %MAP%
-Players: %PLAYERS%
-Novetus Version: %NOVER%
-URI: %URI%
-"
+Novetus Version: %NOVEVER%
+Master Server: %MASTERSERVER%
+URI: %URI%"
 selection_enabled = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
-[node name="LineEdit" type="LineEdit" parent="Main/HostWindow"]
+[node name="ServerNameLine" type="LineEdit" parent="Main/HostWindow"]
 margin_left = 16.0
 margin_top = 32.0
 margin_right = 160.0
@@ -1652,7 +1665,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="LineEdit2" type="LineEdit" parent="Main/HostWindow"]
+[node name="ServerPortLine" type="LineEdit" parent="Main/HostWindow"]
 margin_left = 16.0
 margin_top = 88.0
 margin_right = 160.0
@@ -1663,7 +1676,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="LineEdit3" type="LineEdit" parent="Main/HostWindow"]
+[node name="PlayerLimitLine" type="LineEdit" parent="Main/HostWindow"]
 margin_left = 16.0
 margin_top = 144.0
 margin_right = 160.0
@@ -1674,7 +1687,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="LineEdit4" type="LineEdit" parent="Main/HostWindow"]
+[node name="MasterServerLine" type="LineEdit" parent="Main/HostWindow"]
 margin_left = 16.0
 margin_top = 200.0
 margin_right = 160.0
@@ -1692,6 +1705,14 @@ margin_right = 64.0
 margin_bottom = 27.0
 custom_fonts/font = SubResource( 77 )
 text = "Name"
+
+[node name="Label5" type="Label" parent="Main/HostWindow"]
+margin_left = 192.0
+margin_top = 8.0
+margin_right = 240.0
+margin_bottom = 27.0
+custom_fonts/font = SubResource( 77 )
+text = "Details to Copy and Paste"
 
 [node name="Label2" type="Label" parent="Main/HostWindow"]
 margin_left = 16.0
@@ -2129,7 +2150,7 @@ __meta__ = {
 [connection signal="item_selected" from="Main/Settings/General Settings/Panel/OptionButton" to="." method="_on_OptionButton_item_selected"]
 [connection signal="item_selected" from="Main/Settings/General Settings/Panel/ResolutionList" to="." method="_on_ResolutionList_item_selected"]
 [connection signal="item_activated" from="Main/VersionsWindow/Versions/ItemList" to="." method="versionslist_activated"]
-[connection signal="confirmed" from="Main/Maps" to="." method="_on_Maps_confirmed"]
+[connection signal="file_selected" from="Main/Maps" to="." method="_on_Maps_confirmed"]
 [connection signal="item_selected" from="Main/Serverlist/ItemList" to="." method="mplist_item_selected"]
 [connection signal="pressed" from="Main/Serverlist/Join" to="." method="_on_Join_pressed"]
 [connection signal="pressed" from="Main/Serverlist/DirectConnect" to="." method="_on_DirectConnect_pressed"]
