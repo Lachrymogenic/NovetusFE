@@ -22,13 +22,18 @@ var RobloxPort = "53640"
 var Map = ""
 var PlayerLimit = "12"
 var UPnP = "False"
-var DiscordRichPresence = "False"
-var GraphicsMode
-var QualityLevel
 var ShowServerNotifications = "False"
 var ServerBrowserServerName = "Novetus"
 var MasterServer = "localhost"
 var URI = "?"
+
+var DiscordRichPresence = "False"
+var NewGUI = "False" #2011L gui on 2011M
+var GraphicsMode = 0 # Automatic, GL Stable, GL Experimental, DirectX
+var QualityLevel = 0 # Automatic, Very Low, Low, Medium, High, Ultra, Custom
+var ReShade = "False"
+var CloseOnLaunch = "False"
+
 var NovetusVersion
 
 var http = HTTPRequest.new()
@@ -78,6 +83,25 @@ func _ready():
 	if !dir.dir_exists(WorkingDirectory + "/NovetusFE"): dir.make_dir(WorkingDirectory + "/NovetusFE")
 	if !dir.dir_exists(WorkingDirectory + "/NovetusFE/themes"): dir.make_dir(WorkingDirectory + "/NovetusFE/themes")
 	loadconfig("/NovetusFE/nfeconfig.ini")
+	loadnovetusconfig()
+	for i in list_files_in_directory(WorkingDirectory + "/clients/"):
+		$Main/VersionsWindow/Versions/ItemList.add_item(i, load("res://textures/studio.png"))
+	$Main/VersionsWindow/Versions/ItemList.sort_items_by_text()
+	updateinfo()
+	$Main/Serverlist/Versions.text = Version
+	$Main/HostWindow/Versions.text = Version
+	if Map != "": $Main/HostWindow/Host.disabled = false
+	for i in Resolutions:
+		$"Main/Settings/General Settings/Panel/ResolutionList".add_item(str(i).replace("(","").replace(")",""))
+
+func _http_request_completed(result, response_code, headers, body):
+	var response = parse_json(body.get_string_from_utf8()).ip
+	PublicIP = response
+	print("help")
+	updateinfo()
+	http.disconnect("request_completed", self, "_http_request_completed")
+
+func loadnovetusconfig():
 	NovetusConfig = customconfig("/config/config.ini")
 	var NovetusInfo = customconfig("/config/info.ini")
 	var branch
@@ -103,23 +127,31 @@ func _ready():
 			Map = i.replace("MapPath=","").replace("Z:\\\\","").replace("C:\\\\","").replace("Z://","").replace("C://","").replace("\\\\","//")
 		if "PlayerName=" in i:
 			PlayerName = i.replace("PlayerName=","")
-	for i in list_files_in_directory(WorkingDirectory + "/clients/"):
-		$Main/VersionsWindow/Versions/ItemList.add_item(i, load("res://textures/studio.png"))
-	$Main/VersionsWindow/Versions/ItemList.sort_items_by_text()
-	updateinfo()
-	$Main/Serverlist/Versions.text = Version
-	if Map != "": $Main/HostWindow/Host.disabled = false
-	for i in Resolutions:
-		$"Main/Settings/General Settings/Panel/ResolutionList".add_item(str(i).replace("(","").replace(")",""))
-
-func _http_request_completed(result, response_code, headers, body):
-	var response = parse_json(body.get_string_from_utf8()).ip
-	PublicIP = response
-	print("help")
-	updateinfo()
-	http.disconnect("request_completed", self, "_http_request_completed")
-
+		if "GraphicsMode=" in i:
+			GraphicsMode = i.replace("GraphicsMode=","")
+		if "QualityLevel=" in i:
+			QualityLevel = i.replace("QualityLevel=","")
+		if "DiscordRichPresence=" in i:
+			DiscordRichPresence = i.replace("DiscordRichPresence=","")
+		if "NewGUI=" in i:
+			NewGUI = i.replace("NewGUI=","")
+		if "ReShade=" in i:
+			ReShade = i.replace("ReShade=","")
 func updateinfo():
+	$"Main/Settings/General Settings/Panel/GraphicsModeButton".selected = int(GraphicsMode)
+	$"Main/Settings/General Settings/Panel/GraphicsLevelButton".selected = int(QualityLevel)
+	if DiscordRichPresence == "True":
+		$"Main/Settings/General Settings/Panel/DiscordRPCButton".selected = 1
+	else:
+		$"Main/Settings/General Settings/Panel/DiscordRPCButton".selected = 0
+	if NewGUI == "True":
+		$"Main/Settings/General Settings/Panel/NewGUI".pressed = true
+	else:
+		$"Main/Settings/General Settings/Panel/NewGUI".pressed = false
+	if ReShade == "True":
+		$"Main/Settings/General Settings/Panel/ReShade".pressed = true
+	else:
+		$"Main/Settings/General Settings/Panel/ReShade".pressed = false
 	http.request("https://api.ipify.org/?format=json")
 	$Background/Info.text = "Hello, %PLAYER%! Client Selected: %CLIENT%, Map Selected: %MAP%"
 	$Main/HostWindow/ServerDeets.text = "Map: %MAP%\nPlayers: %PLAYERS%\nIP: %IP%\nPort: %PORT%\nClient: %CLIENT%\nNovetus Version: %NOVEVER%\nMaster Server: %MASTERSERVER%\nURI: %URI%"
@@ -151,6 +183,7 @@ func loadconfig(arg):
 			$Background/FirstTime/Panel/TabContainer/Linux/WinePathText.text = LinuxWinePath
 			$Background/FirstTime/Panel/TabContainer/Linux/WinePrefixText.text = LinuxWinePrefix
 			$Main/Menu.visible = config.get_value("General Settings", "first_time_setup",false)
+			$Background/FirstTime/Panel/TabContainer/Linux/NeverShow.pressed = config.get_value("General Settings", "first_time_setup",false)
 			NewServerIcons = config.get_value("General Settings", "savedicons")
 			for i in $Main/AddServerWindow/ScrollContainer/HBoxContainer.get_children():
 				if i is TextureButton:
@@ -244,7 +277,22 @@ func Back_pressed():
 
 
 func _on_Save_pressed():
+	GraphicsMode = str($"Main/Settings/General Settings/Panel/GraphicsModeButton".selected)
+	QualityLevel = str($"Main/Settings/General Settings/Panel/GraphicsLevelButton".selected)
+	if $"Main/Settings/General Settings/Panel/DiscordRPCButton".selected == 1: 
+		DiscordRichPresence = "True"
+	else:
+		DiscordRichPresence = "False"
+	if $"Main/Settings/General Settings/Panel/NewGUI".pressed:
+		NewGUI = "True"
+	else:
+		NewGUI = "False"
+	if $"Main/Settings/General Settings/Panel/ReShade".pressed:
+		ReShade = "True"
+	else:
+		ReShade = "False"
 	saveconfig()
+	savenovetusconfig()
 
 func saveconfig():
 	var config = ConfigFile.new()
@@ -444,7 +492,39 @@ func addtoserverlist(servername, icon):
 	serverconfig.save(WorkingDirectory + "/NovetusFE/servers.ini")
 	refreshserverlist()
 	#$Main/Serverlist/ItemList.add_item(servername,icon)
-	
+	NovetusConfig = customconfig("/config/config.ini")
+	var NovetusInfo = customconfig("/config/info.ini")
+	var branch
+	var rev
+	for i in NovetusInfo:
+		if "IsLite=" in i:
+			if i.split("=")[1] == "True":
+				NovetusVersion = NovetusVersion.replace("%lite%"," Lite")
+			else:
+				NovetusVersion = NovetusVersion.replace("%lite%","")
+		if "Branch=" in i:
+			branch = i.replace("Branch=","")
+		if "ExtendedVersionRevision=" in i:
+			rev = i.replace("ExtendedVersionRevision=","")
+			NovetusVersion = NovetusVersion.replace("%extended-revision%",rev)
+		if "ExtendedVersionTemplate=" in i:
+			if not "//" in i:
+				NovetusVersion = i.replace("ExtendedVersionTemplate=","").replace("%version%",branch)
+	for i in NovetusConfig:
+		if "SelectedClient=" in i:
+			Version = i.replace("SelectedClient=","")
+		if "MapPath=" in i:
+			Map = i.replace("MapPath=","").replace("Z:\\\\","").replace("C:\\\\","").replace("Z://","").replace("C://","").replace("\\\\","//")
+		if "PlayerName=" in i:
+			PlayerName = i.replace("PlayerName=","")
+		if "GraphicsMode=" in i:
+			GraphicsMode = i.replace("GraphicsMode=","")
+		if "QualityLevel=" in i:
+			QualityLevel = i.replace("QualityLevel=","")
+		if "NewGUI=" in i:
+			NewGUI = i.replace("NewGUI=","")
+		if "ReShade=" in i:
+			ReShade = i.replace("ReShade=","")
 	#print($Main/Serverlist/ItemList.items[servername])
 
 
@@ -462,6 +542,7 @@ func _on_Join_pressed():
 
 func multi_Versions_pressed():
 	$Main/Serverlist/Versions.text = Version
+	$Main/HostWindow/Versions.text = Version
 	$Main/VersionsWindow.popup_centered()
 
 func multi_closed():
@@ -528,6 +609,14 @@ func savenovetusconfig():
 		if e.size() >= 2:
 			if "SelectedClient=" in i:
 				e[1] = Version
+			if "ReShade=" in i:
+				e[1] = ReShade
+			if "QualityLevel=" in i:
+				e[1] = QualityLevel
+			if "GraphicsMode=" in i:
+				e[1] = GraphicsMode
+			if "DiscordRichPresence=" in i:
+				e[1] = DiscordRichPresence
 			if "UPnP=" in i:
 				e[1] = UPnP
 			if "ServerBrowserServerName=" in i:
@@ -565,3 +654,10 @@ func _on_Host_pressed():
 	var args = []
 	if $Main/HostWindow/No3DBox.pressed: args.append("-no3d")
 	launch("/bin/NovetusCMD", args)
+
+
+func bitlslink():
+	OS.shell_open("https://bitl.itch.io/novetus")
+
+func hostwindow_close_pressed():
+	$Main/HostWindow.visible = false
