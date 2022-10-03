@@ -1,4 +1,4 @@
-[gd_scene load_steps=91 format=2]
+[gd_scene load_steps=101 format=2]
 
 [ext_resource path="res://textures/hZZ7X7.png" type="Texture" id=1]
 [ext_resource path="res://textures/multiplayer.png" type="Texture" id=2]
@@ -18,6 +18,9 @@
 [ext_resource path="res://textures/sky/null_plainsky512_rt.jpg" type="Texture" id=16]
 [ext_resource path="res://textures/sky/null_plainsky512_bk.jpg" type="Texture" id=17]
 [ext_resource path="res://textures/2006Face.png" type="Texture" id=18]
+[ext_resource path="res://scenes/objects/cus_ws_button.tscn" type="PackedScene" id=19]
+[ext_resource path="res://textures/cross.png" type="Texture" id=20]
+[ext_resource path="res://textures/cross_highlighted.png" type="Texture" id=21]
 
 [sub_resource type="Shader" id=31]
 code = "shader_type canvas_item;
@@ -256,6 +259,17 @@ border_width_bottom = 2
 [sub_resource type="DynamicFont" id=87]
 font_data = ExtResource( 6 )
 
+[sub_resource type="DynamicFont" id=91]
+font_data = ExtResource( 6 )
+
+[sub_resource type="StyleBoxFlat" id=92]
+bg_color = Color( 0.0156863, 0, 0.431373, 1 )
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+expand_margin_top = 20.0
+
 [sub_resource type="StyleBoxFlat" id=30]
 bg_color = Color( 0.0352941, 0.0235294, 0.113725, 1 )
 border_width_left = 2
@@ -434,6 +448,32 @@ font_data = ExtResource( 6 )
 
 [sub_resource type="DynamicFont" id=78]
 font_data = ExtResource( 6 )
+
+[sub_resource type="StyleBoxFlat" id=90]
+bg_color = Color( 0.0352941, 0.0313726, 0.117647, 1 )
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+
+[sub_resource type="DynamicFont" id=93]
+font_data = ExtResource( 6 )
+
+[sub_resource type="StyleBoxFlat" id=94]
+content_margin_left = 7.0
+content_margin_top = 5.0
+bg_color = Color( 0.129412, 0.0980392, 0.211765, 1 )
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+expand_margin_bottom = 4.0
+
+[sub_resource type="DynamicFont" id=88]
+size = 13
+font_data = ExtResource( 6 )
+
+[sub_resource type="StyleBoxEmpty" id=89]
 
 [sub_resource type="DynamicFont" id=74]
 size = 17
@@ -1239,6 +1279,11 @@ margin_left = -160.0
 margin_top = -21.0
 margin_right = 230.0
 margin_bottom = 267.0
+custom_colors/title_color = Color( 1, 1, 1, 1 )
+custom_fonts/title_font = SubResource( 91 )
+custom_icons/close_highlight = ExtResource( 21 )
+custom_icons/close = ExtResource( 20 )
+custom_styles/panel = SubResource( 92 )
 window_title = "Versions"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -1288,7 +1333,9 @@ margin_left = -286.0
 margin_top = -124.0
 margin_right = 298.0
 margin_bottom = 276.0
+custom_colors/title_color = Color( 1, 1, 1, 1 )
 custom_fonts/title_font = SubResource( 61 )
+custom_styles/panel = SubResource( 92 )
 window_title = "Character Customization"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -1511,6 +1558,11 @@ margin_left = -266.0
 margin_top = -104.0
 margin_right = 318.0
 margin_bottom = 296.0
+custom_colors/title_color = Color( 1, 1, 1, 1 )
+custom_fonts/title_font = SubResource( 91 )
+custom_icons/close_highlight = ExtResource( 21 )
+custom_icons/close = ExtResource( 20 )
+custom_styles/panel = SubResource( 92 )
 window_title = "Server List"
 
 [node name="Panel" type="Panel" parent="Main/Serverlist"]
@@ -1623,6 +1675,10 @@ margin_left = -266.0
 margin_top = -104.0
 margin_right = 318.0
 margin_bottom = 296.0
+custom_colors/title_color = Color( 1, 1, 1, 1 )
+custom_fonts/title_font = SubResource( 91 )
+custom_icons/close = ExtResource( 20 )
+custom_styles/panel = SubResource( 92 )
 window_title = "Host Server"
 
 [node name="Panel" type="Panel" parent="Main/HostWindow"]
@@ -1673,7 +1729,6 @@ custom_fonts/font = SubResource( 63 )
 custom_styles/hover = SubResource( 55 )
 custom_styles/disabled = SubResource( 64 )
 custom_styles/normal = SubResource( 56 )
-disabled = true
 text = "Addons"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -1854,6 +1909,218 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="WorkshopWindow" type="WindowDialog" parent="Main"]
+visible = true
+margin_left = -266.0
+margin_top = -104.0
+margin_right = 318.0
+margin_bottom = 296.0
+custom_colors/title_color = Color( 1, 1, 1, 1 )
+custom_fonts/title_font = SubResource( 91 )
+custom_icons/close_highlight = ExtResource( 21 )
+custom_icons/close = ExtResource( 20 )
+custom_styles/panel = SubResource( 92 )
+window_title = "Workshop"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Background" type="Panel" parent="Main/WorkshopWindow"]
+margin_right = 584.0
+margin_bottom = 400.0
+custom_styles/panel = SubResource( 62 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Main/WorkshopWindow/Background"]
+margin_left = 192.0
+margin_top = 176.0
+margin_right = 394.0
+margin_bottom = 195.0
+custom_fonts/font = SubResource( 77 )
+text = "Connecting to Workshop..."
+
+[node name="List" type="Panel" parent="Main/WorkshopWindow"]
+margin_right = 584.0
+margin_bottom = 336.0
+custom_styles/panel = SubResource( 90 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Download" type="Button" parent="Main/WorkshopWindow/List"]
+margin_left = 24.0
+margin_top = 352.0
+margin_right = 152.0
+margin_bottom = 382.0
+custom_fonts/font = SubResource( 63 )
+custom_styles/hover = SubResource( 55 )
+custom_styles/disabled = SubResource( 64 )
+custom_styles/normal = SubResource( 56 )
+text = "Download"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Filter" type="Button" parent="Main/WorkshopWindow/List"]
+margin_left = 168.0
+margin_top = 352.0
+margin_right = 296.0
+margin_bottom = 382.0
+custom_fonts/font = SubResource( 63 )
+custom_styles/hover = SubResource( 55 )
+custom_styles/disabled = SubResource( 64 )
+custom_styles/normal = SubResource( 56 )
+text = "Filter"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Main/WorkshopWindow/List"]
+margin_left = 24.0
+margin_top = 12.0
+margin_right = 584.0
+margin_bottom = 334.0
+scroll_horizontal_enabled = false
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="GridContainer" type="GridContainer" parent="Main/WorkshopWindow/List/ScrollContainer"]
+margin_right = 413.0
+margin_bottom = 436.0
+custom_constants/vseparation = 26
+custom_constants/hseparation = 157
+columns = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureButton3" parent="Main/WorkshopWindow/List/ScrollContainer/GridContainer" instance=ExtResource( 19 )]
+margin_right = 128.0
+margin_bottom = 128.0
+
+[node name="TextureButton4" parent="Main/WorkshopWindow/List/ScrollContainer/GridContainer" instance=ExtResource( 19 )]
+margin_left = 285.0
+margin_right = 413.0
+margin_bottom = 128.0
+
+[node name="TextureButton7" parent="Main/WorkshopWindow/List/ScrollContainer/GridContainer" instance=ExtResource( 19 )]
+margin_top = 154.0
+margin_right = 128.0
+margin_bottom = 282.0
+
+[node name="TextureButton5" parent="Main/WorkshopWindow/List/ScrollContainer/GridContainer" instance=ExtResource( 19 )]
+margin_left = 285.0
+margin_top = 154.0
+margin_right = 413.0
+margin_bottom = 282.0
+
+[node name="TextureButton6" parent="Main/WorkshopWindow/List/ScrollContainer/GridContainer" instance=ExtResource( 19 )]
+margin_top = 308.0
+margin_right = 128.0
+margin_bottom = 436.0
+
+[node name="LineEdit" type="LineEdit" parent="Main/WorkshopWindow/List"]
+margin_left = 312.0
+margin_top = 352.0
+margin_right = 552.0
+margin_bottom = 378.0
+custom_fonts/font = SubResource( 93 )
+custom_styles/normal = SubResource( 94 )
+placeholder_text = "Search..."
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AddonsWindow" type="WindowDialog" parent="Main"]
+margin_left = -162.0
+margin_top = -104.0
+margin_right = 222.0
+margin_bottom = 296.0
+custom_colors/title_color = Color( 1, 1, 1, 1 )
+custom_fonts/title_font = SubResource( 91 )
+custom_icons/close_highlight = ExtResource( 21 )
+custom_icons/close = ExtResource( 20 )
+custom_styles/panel = SubResource( 92 )
+window_title = "Addons Manager"
+
+[node name="Panel" type="Panel" parent="Main/AddonsWindow"]
+margin_right = 384.0
+margin_bottom = 400.0
+custom_styles/panel = SubResource( 62 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel2" type="Panel" parent="Main/AddonsWindow"]
+margin_right = 384.0
+margin_bottom = 336.0
+custom_styles/panel = SubResource( 73 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Disabled" type="ItemList" parent="Main/AddonsWindow"]
+margin_left = 10.0
+margin_top = 40.0
+margin_right = 194.0
+margin_bottom = 328.0
+custom_fonts/font = SubResource( 88 )
+custom_styles/bg = SubResource( 89 )
+items = [ "Test", ExtResource( 5 ), false ]
+fixed_icon_size = Vector2( 32, 32 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Enabled" type="ItemList" parent="Main/AddonsWindow"]
+margin_left = 200.0
+margin_top = 40.0
+margin_right = 384.0
+margin_bottom = 328.0
+custom_fonts/font = SubResource( 88 )
+custom_styles/bg = SubResource( 89 )
+items = [ "Test", ExtResource( 5 ), false ]
+fixed_icon_size = Vector2( 32, 32 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Close" type="Button" parent="Main/AddonsWindow"]
+margin_left = 16.0
+margin_top = 352.0
+margin_right = 368.0
+margin_bottom = 382.0
+custom_fonts/font = SubResource( 63 )
+custom_styles/hover = SubResource( 55 )
+custom_styles/disabled = SubResource( 64 )
+custom_styles/normal = SubResource( 56 )
+text = "Save and Close"
+
+[node name="Label" type="Label" parent="Main/AddonsWindow"]
+margin_left = 16.0
+margin_top = 16.0
+margin_right = 144.0
+margin_bottom = 35.0
+custom_fonts/font = SubResource( 77 )
+text = "Disabled Addons"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label5" type="Label" parent="Main/AddonsWindow"]
+margin_left = 200.0
+margin_top = 16.0
+margin_right = 325.0
+margin_bottom = 35.0
+custom_fonts/font = SubResource( 77 )
+text = "Enabled Addons"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="DirectConnectWindow" type="WindowDialog" parent="Main"]
 anchor_left = 0.5
 anchor_top = 0.5
@@ -1863,6 +2130,10 @@ margin_left = -148.5
 margin_top = -72.0
 margin_right = 148.5
 margin_bottom = 72.0
+custom_colors/title_color = Color( 1, 1, 1, 1 )
+custom_fonts/title_font = SubResource( 91 )
+custom_icons/close = ExtResource( 20 )
+custom_styles/panel = SubResource( 92 )
 window_title = "Direct Connect"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -1919,6 +2190,8 @@ margin_left = -150.0
 margin_top = -72.0
 margin_right = 149.0
 margin_bottom = 204.0
+custom_fonts/title_font = SubResource( 91 )
+custom_icons/close = ExtResource( 20 )
 window_title = "Add Server"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -2051,6 +2324,8 @@ margin_left = -150.0
 margin_top = -72.0
 margin_right = 149.0
 margin_bottom = 204.0
+custom_fonts/title_font = SubResource( 91 )
+custom_icons/close = ExtResource( 20 )
 window_title = "Edit Server"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -2243,8 +2518,12 @@ __meta__ = {
 [connection signal="pressed" from="Main/Serverlist/Versions" to="." method="multi_Versions_pressed"]
 [connection signal="pressed" from="Main/HostWindow/Host" to="." method="_on_Host_pressed"]
 [connection signal="pressed" from="Main/HostWindow/Maps" to="." method="_on_Maps_pressed"]
+[connection signal="pressed" from="Main/HostWindow/Addons" to="." method="_on_Addons_pressed"]
 [connection signal="pressed" from="Main/HostWindow/Close" to="." method="hostwindow_close_pressed"]
 [connection signal="pressed" from="Main/HostWindow/Versions" to="." method="multi_Versions_pressed"]
+[connection signal="item_activated" from="Main/AddonsWindow/Disabled" to="." method="_on_DisabledAddon_item_activated"]
+[connection signal="item_activated" from="Main/AddonsWindow/Enabled" to="." method="_on_Enabled_Addon_activated"]
+[connection signal="pressed" from="Main/AddonsWindow/Close" to="." method="AddonsList_Close_pressed"]
 [connection signal="pressed" from="Main/DirectConnectWindow/Join" to="." method="DirectConnect_Join_pressed"]
 [connection signal="pressed" from="Main/DirectConnectWindow/Close" to="." method="DirectConnect_Close_pressed"]
 [connection signal="pressed" from="Main/AddServerWindow/Add Server" to="." method="_on_Add_Server_pressed"]
