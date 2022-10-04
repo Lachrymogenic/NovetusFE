@@ -5,6 +5,9 @@ var dir = Directory.new()
 var CurrentMenu
 
 func _ready():
+	httprequests.get_store()
+	#httprequests.uncompress(Global.WorkingDirectory + "/NovetusFE/workshop/downloads/main.zip","Red-sGunMeshes-main/shareddata/Guns/Fonts/AWP.mesh")
+	$Main/WorkshopWindow/List.visible = false
 	OS.min_window_size = Vector2(700, 600)
 	OS.max_window_size = Vector2(1920, 1080)
 	Configs.loadconfig("/NovetusFE/nfeconfig.ini")
@@ -19,7 +22,6 @@ func _ready():
 	if Configs.Map != "": $Main/HostWindow/Host.disabled = false
 	for i in Configs.Resolutions:
 		$"Main/Settings/General Settings/Panel/ResolutionList".add_item(str(i).replace("(","").replace(")",""))
-		$Main/WorkshopWindow.popup_centered()
 
 func main_item_activated(index):
 	match $Main/Menu/ItemList.get_item_text(index):
@@ -32,6 +34,8 @@ func main_item_activated(index):
 		"Multiplayer":
 			menu("Multiplayer")
 			$Main/Multiplayer/ItemList.grab_focus()
+		"Workshop":
+			$Main/WorkshopWindow.popup_centered()
 		"Versions":
 			$Main/VersionsWindow.popup_centered()
 			$Main/VersionsWindow/Versions/ItemList.grab_focus()
@@ -317,3 +321,86 @@ func _on_Enabled_Addon_activated(index):
 		Configs.EnabledAddonsList.erase($Main/AddonsWindow/Enabled.get_item_text(index))
 	$Main/AddonsWindow/Disabled.add_item($Main/AddonsWindow/Enabled.get_item_text(index),load("res://textures/settings.png"))
 	$Main/AddonsWindow/Enabled.remove_item(index)
+
+
+func Workshop_Search_text_changed(new_text):
+	if new_text != "":
+		if len(new_text.split(" ")) >= 1: new_text = new_text.split(" ")[-1]
+		for i in $Main/WorkshopWindow/List/ScrollContainer/GridContainer.get_children():
+			if not new_text.to_lower() in i.get_node("Name").text.to_lower():
+				i.visible = false
+			else:
+				i.visible = true
+			if i.tags != null:
+				if i.tags != []:
+					for v in i.tags:
+						if v in new_text.to_lower():
+							i.visible = true
+	else:
+		for i in $Main/WorkshopWindow/List/ScrollContainer/GridContainer.get_children():
+			i.visible = true
+
+var downloadlocation
+var leaveout
+var modname
+
+func Workshop_PreDownload_pressed():
+	for i in $Main/WorkshopWindow/List/ScrollContainer/GridContainer.get_children():
+		if i.get_node("Selected").visible == true:
+			$Main/WorkshopWindow/Confirmation/ModName.text = i.shortname
+			$Main/WorkshopWindow/Confirmation.popup_centered()
+			
+func Workshop_NoDownload_pressed():
+	$Main/WorkshopWindow/Confirmation.visible = false
+
+func Workshop_Download_pressed():
+	for i in $Main/WorkshopWindow/List/ScrollContainer/GridContainer.get_children():
+		if i.get_node("Selected").visible == true:
+			$OverlayLayer/Overlay.visible = true
+			$OverlayLayer/Overlay/Downloading.visible = true
+			$OverlayLayer/Overlay/RichTextLabel.visible = false
+			leaveout = i.leaveout
+			modname = i.shortname
+			downloadlocation = Global.WorkingDirectory + "/NovetusFE/workshop/downloads/" + i.url.split("/")[-1]
+			httprequests.ziphttp.connect("request_completed", self, "download_complete")
+			httprequests.download(i.url, downloadlocation)
+			
+			
+			
+func download_complete(result, response_code, headers, body):
+	print(downloadlocation)
+	$OverlayLayer/Overlay.visible = false
+	$OverlayLayer/Overlay/Downloading.visible = false
+	$OverlayLayer/Overlay/RichTextLabel.visible = true
+	$Main/WorkshopWindow/Confirmation.visible = false
+	if not modname in Configs.DownloadedMods:
+		Configs.DownloadedMods.append(modname)
+	print("index ", httprequests.index)
+	$OverlayLayer/Overlay/Downloading/Downloading.text = "Extracting..."
+	$OverlayLayer/Overlay/Downloading/Bytes.bbcode_text = "[center]This may take a while, do not close the application"
+	httprequests.extract(downloadlocation, Global.WorkingDirectory + "/", httprequests.index, leaveout)
+	for i in $Main/WorkshopWindow/List/ScrollContainer/GridContainer.get_children():
+		if i.shortname in Configs.DownloadedMods:
+			i.get_node("Name").modulate = Color("20ff00")
+	Configs.saveconfig()
+	httprequests.ziphttp.disconnect("request_completed", self, "download_complete")
+	
+
+
+func Workshop_Generate_pressed():
+	var json = {
+  "shortname":'"' + str($Main/WorkshopWindow/Upload/Shortname.text) + '"',
+  "longname":'"' + str($Main/WorkshopWindow/Upload/Longname.text) + '"',
+  "description":'"' + str($Main/WorkshopWindow/Upload/Description.text) + '"',
+  "creator":'"' + str($Main/WorkshopWindow/Upload/Creator.text) + '"',
+  "tags":$Main/WorkshopWindow/Upload/Tags.text.split(", "),
+  "url":'"' + str($Main/WorkshopWindow/Upload/URL.text) + '"',
+  "iconurl":'"' + str($Main/WorkshopWindow/Upload/URL2.text) + '"',
+  "leaveout":$Main/WorkshopWindow/Upload/Github.pressed
+}
+	$Main/WorkshopWindow/Upload/Output.text = str(json)
+	OS.clipboard = str(json)
+
+
+func Workshop_Upload_pressed():
+	$Main/WorkshopWindow/Upload.popup_centered()

@@ -10,6 +10,9 @@ var Servers
 var Resolutions = [Vector2(700, 600),Vector2(1280,720)]
 var serverconfig = ConfigFile.new()
 
+var WorkshopJSON
+var WorkshopRepo = "https://github.com/Lachrymogenic/NovetusFE-WS/archive/refs/heads/repository.zip"
+
 var AddonsList = []
 var EnabledAddonsList = []
 var AddonLua
@@ -31,6 +34,8 @@ var ShowServerNotifications = "False"
 var ServerBrowserServerName = "Novetus"
 var MasterServer = "localhost"
 var URI = "?"
+
+var DownloadedMods = []
 
 var DiscordRichPresence = "False"
 var NewGUI = "False" #2011L gui on 2011M
@@ -157,6 +162,7 @@ func saveconfig():
 	config.set_value("Linux Settings", "wineprefix", $"../Main/Main/Settings/Linux Settings/Panel/WPBox".text)
 	config.set_value("Linux Settings", "wine_exec_path", $"../Main/Main/Settings/Linux Settings/Panel/WPBox2".text)
 	config.set_value("General Settings", "savedicons", NewServerIcons)
+	config.set_value("Workshop Settings", "downloaded", DownloadedMods)
 	config.set_value("General Settings", "resolution", OS.window_size)
 	config.set_value("General Settings", "first_time_setup", $"../Main/Background/FirstTime/Panel/TabContainer/Linux/NeverShow".pressed)
 	config.save(Global.WorkingDirectory + "/NovetusFE/nfeconfig.ini")
@@ -339,6 +345,7 @@ func loadconfig(arg):
 		"/NovetusFE/nfeconfig.ini":
 			LinuxWinePrefix = config.get_value("Linux Settings", "wineprefix")
 			LinuxWinePath = config.get_value("Linux Settings", "wine_exec_path")
+			DownloadedMods = config.get_value("Workshop Settings", "downloaded", [])
 			OS.window_size = config.get_value("General Settings", "resolution",Vector2(700,600))
 			$"../Main/Background/FirstTime/Panel/TabContainer/Linux/WinePathText".text = LinuxWinePath
 			$"../Main/Background/FirstTime/Panel/TabContainer/Linux/WinePrefixText".text = LinuxWinePrefix

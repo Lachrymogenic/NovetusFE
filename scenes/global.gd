@@ -36,3 +36,6 @@ func _ready():
 			Main.get_node("Main").visible = false
 	if !dir.dir_exists(WorkingDirectory + "/NovetusFE"): dir.make_dir(WorkingDirectory + "/NovetusFE")
 	if !dir.dir_exists(WorkingDirectory + "/NovetusFE/themes"): dir.make_dir(WorkingDirectory + "/NovetusFE/themes")
+	if !dir.dir_exists(WorkingDirectory + "/NovetusFE/workshop"): dir.make_dir(WorkingDirectory + "/NovetusFE/workshop")
+	if !dir.dir_exists(WorkingDirectory + "/NovetusFE/workshop/downloads"): dir.make_dir(WorkingDirectory + "/NovetusFE/workshop/downloads")
+	if !dir.dir_exists(WorkingDirectory + "/NovetusFE/workshop/icons"): dir.make_dir(WorkingDirectory + "/NovetusFE/workshop/icons")
