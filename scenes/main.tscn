@@ -1,4 +1,4 @@
-[gd_scene load_steps=103 format=2]
+[gd_scene load_steps=102 format=2]
 
 [ext_resource path="res://textures/hZZ7X7.png" type="Texture" id=1]
 [ext_resource path="res://textures/multiplayer.png" type="Texture" id=2]
@@ -18,101 +18,27 @@
 [ext_resource path="res://textures/sky/null_plainsky512_rt.jpg" type="Texture" id=16]
 [ext_resource path="res://textures/sky/null_plainsky512_bk.jpg" type="Texture" id=17]
 [ext_resource path="res://textures/2006Face.png" type="Texture" id=18]
+[ext_resource path="res://scenes/style/clouds.tres" type="Material" id=19]
 [ext_resource path="res://textures/cross.png" type="Texture" id=20]
 [ext_resource path="res://textures/cross_highlighted.png" type="Texture" id=21]
-
-[sub_resource type="Shader" id=31]
-code = "shader_type canvas_item;
-
-uniform vec4 BackColor : hint_color = vec4(0.0, 0.4, 0.58, 1.0);
-uniform vec4 CloudColor : hint_color = vec4(0.18, 0.70, 0.87, 1.0);
-uniform float speed : hint_range(0.0, 5.0) = 0.1;
-
-const float TAU = 6.28318530718;
-
-float Func(float pX)
-{
-	return 0.6*(0.5*sin(0.1*pX) + 0.5*sin(0.553*pX) + 0.7*sin(1.2*pX));
-}
-
-
-float FuncR(float pX)
-{
-	return 0.5 + 0.25*(1.0 + sin(mod(40.0*pX, TAU)));
-}
-
-
-float Layer(vec2 pQ, float pT)
-{
-	vec2 Qt = 3.5*pQ;
-	pT *= 0.5;
-	Qt.x += pT;
-
-	float Xi = floor(Qt.x);
-	float Xf = Qt.x - Xi -0.5;
-
-	vec2 C;
-	float Yi;
-	float D = 1.0 - step(Qt.y,  Func(Qt.x));
-
-	// Disk:
-	Yi = Func(Xi + 0.5);
-	C = vec2(Xf, Qt.y - Yi );
-	D =  min(D, length(C) - FuncR(Xi+ pT/80.0));
-
-	// Previous disk:
-	Yi = Func(Xi+1.0 + 0.5);
-	C = vec2(Xf-1.0, Qt.y - Yi );
-	D =  min(D, length(C) - FuncR(Xi+1.0+ pT/80.0));
-
-	// Next Disk:
-	Yi = Func(Xi-1.0 + 0.5);
-	C = vec2(Xf+1.0, Qt.y - Yi );
-	D =  min(D, length(C) - FuncR(Xi-1.0+ pT/80.0));
-
-	return min(1.0, D);
-}
-
-void fragment() {
-	//vec2 uv = 8.0 * (SCREEN_UV - UV * 2.0);
-	vec2 uv = 3.0 * (SCREEN_UV - UV * 2.0);
-
-	// Render:
-	vec3 Color= BackColor.rgb;
-	for(float J = 0.0; J <= 1.0; J += 0.2)
-	{
-		// Cloud Layer:
-		float Lt =  TIME * speed * (0.5  + 2.0 * J) * (1.0 + 0.1 * sin(226.0 * J)) + 17.0 * J;
-		vec2 Lp = vec2(0.0, 0.3 + 1.5 * ( J - 0.5));
-		float L = Layer(uv + Lp, Lt);
-		// Blur and color:
-		float Blur = 4.0 * (0.5 * abs(2.0 - 5.0 * J)) / (11.0 - 5.0 * J);
-		float V = mix( 0.0, 1.0, 1.0 - smoothstep( 0.0, 0.01 +0.2 * Blur, L ) );
-		vec3 Lc=  mix(CloudColor.rgb, vec3(1.0), J);
-		Color =mix(Color, Lc,  V);
-	}
-	COLOR = vec4(Color,1.);
-}"
-
-[sub_resource type="ShaderMaterial" id=32]
-shader = SubResource( 31 )
-shader_param/BackColor = Color( 0.137255, 0.14902, 0.258824, 1 )
-shader_param/CloudColor = Color( 0.141176, 0.0784314, 0.368627, 1 )
-shader_param/speed = 1.08
-
-[sub_resource type="Gradient" id=6]
-colors = PoolColorArray( 0, 0, 0, 1, 0.175327, 0.151245, 0.921875, 1 )
-
-[sub_resource type="GradientTexture" id=7]
-gradient = SubResource( 6 )
-width = 1024
+[ext_resource path="res://scenes/style/background-gradient.tres" type="Texture" id=22]
+[ext_resource path="res://scenes/style/panel.tres" type="StyleBox" id=23]
+[ext_resource path="res://scenes/style/itemlist-font.tres" type="DynamicFont" id=24]
+[ext_resource path="res://scenes/style/titlebar.tres" type="StyleBox" id=25]
+[ext_resource path="res://scenes/style/window-bar-font.tres" type="DynamicFont" id=26]
+[ext_resource path="res://scenes/style/button-hovered.tres" type="StyleBox" id=27]
+[ext_resource path="res://scenes/style/button-normal.tres" type="StyleBox" id=28]
+[ext_resource path="res://scenes/style/darkpanel.tres" type="StyleBox" id=29]
+[ext_resource path="res://scenes/style/button-disabled.tres" type="StyleBox" id=30]
+[ext_resource path="res://textures/workshop.png" type="Texture" id=31]
+[ext_resource path="res://scenes/style/line-edit-dark.tres" type="StyleBox" id=32]
 
 [sub_resource type="Animation" id=5]
 resource_name = "anim"
 length = 4.0
 loop = true
 tracks/0/type = "value"
-tracks/0/path = NodePath("Control/Logo:position")
+tracks/0/path = NodePath("Logo Node/Logo:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -152,13 +78,6 @@ font_data = ExtResource( 6 )
 
 [sub_resource type="StyleBoxEmpty" id=86]
 
-[sub_resource type="StyleBoxFlat" id=66]
-bg_color = Color( 0.121569, 0.0823529, 0.2, 1 )
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-
 [sub_resource type="DynamicFont" id=67]
 font_data = ExtResource( 6 )
 
@@ -187,19 +106,8 @@ font_data = ExtResource( 6 )
 [sub_resource type="DynamicFont" id=82]
 font_data = ExtResource( 6 )
 
-[sub_resource type="StyleBoxFlat" id=8]
-bg_color = Color( 0.0666667, 0.0470588, 0.215686, 1 )
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-
-[sub_resource type="DynamicFont" id=11]
-size = 21
-font_data = ExtResource( 6 )
-
 [sub_resource type="StyleBoxFlat" id=9]
-bg_color = Color( 0.0666667, 0.0470588, 0.215686, 1 )
+bg_color = Color( 0.0666667, 0.0470588, 0.215686, 0 )
 
 [sub_resource type="StyleBoxEmpty" id=17]
 
@@ -258,27 +166,10 @@ border_width_bottom = 2
 [sub_resource type="DynamicFont" id=87]
 font_data = ExtResource( 6 )
 
-[sub_resource type="DynamicFont" id=91]
+[sub_resource type="DynamicFont" id=100]
 font_data = ExtResource( 6 )
 
-[sub_resource type="StyleBoxFlat" id=92]
-bg_color = Color( 0.0156863, 0, 0.431373, 1 )
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-expand_margin_top = 20.0
-
-[sub_resource type="StyleBoxFlat" id=30]
-bg_color = Color( 0.0352941, 0.0235294, 0.113725, 1 )
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-
-[sub_resource type="DynamicFont" id=61]
-size = 14
-font_data = ExtResource( 6 )
+[sub_resource type="StyleBoxEmpty" id=99]
 
 [sub_resource type="StyleBoxFlat" id=43]
 bg_color = Color( 0.0470588, 0.027451, 0.243137, 1 )
@@ -347,20 +238,6 @@ font_data = ExtResource( 6 )
 [sub_resource type="DynamicFont" id=54]
 font_data = ExtResource( 6 )
 
-[sub_resource type="StyleBoxFlat" id=55]
-bg_color = Color( 0.290196, 0.341176, 0.682353, 1 )
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-
-[sub_resource type="StyleBoxFlat" id=56]
-bg_color = Color( 0.0862745, 0.121569, 0.372549, 1 )
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-
 [sub_resource type="DynamicFont" id=57]
 size = 14
 font_data = ExtResource( 6 )
@@ -399,30 +276,20 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 
-[sub_resource type="StyleBoxFlat" id=73]
-bg_color = Color( 0.027451, 0.0235294, 0.109804, 1 )
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-
 [sub_resource type="DynamicFont" id=68]
 size = 18
 font_data = ExtResource( 6 )
 
-[sub_resource type="StyleBoxEmpty" id=72]
-
-[sub_resource type="DynamicFont" id=63]
-size = 20
-font_data = ExtResource( 6 )
-
-[sub_resource type="StyleBoxFlat" id=64]
-bg_color = Color( 0.0352941, 0.0431373, 0.196078, 1 )
+[sub_resource type="StyleBoxFlat" id=98]
+bg_color = Color( 0.6, 0.6, 0.6, 0 )
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color( 0.294118, 0.294118, 0.294118, 1 )
+
+[sub_resource type="DynamicFont" id=63]
+size = 20
+font_data = ExtResource( 6 )
 
 [sub_resource type="DynamicFont" id=76]
 font_data = ExtResource( 6 )
@@ -448,13 +315,6 @@ font_data = ExtResource( 6 )
 [sub_resource type="DynamicFont" id=78]
 font_data = ExtResource( 6 )
 
-[sub_resource type="StyleBoxFlat" id=90]
-bg_color = Color( 0.0352941, 0.0313726, 0.117647, 1 )
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-
 [sub_resource type="DynamicFont" id=93]
 font_data = ExtResource( 6 )
 
@@ -467,6 +327,9 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 expand_margin_bottom = 4.0
+
+[sub_resource type="DynamicFont" id=91]
+font_data = ExtResource( 6 )
 
 [sub_resource type="DynamicFont" id=95]
 font_data = ExtResource( 6 )
@@ -537,7 +400,7 @@ __meta__ = {
 }
 
 [node name="Clouds" type="ColorRect" parent="Background"]
-material = SubResource( 32 )
+material = ExtResource( 19 )
 margin_left = -938.0
 margin_top = -352.0
 margin_right = 974.0
@@ -556,7 +419,7 @@ margin_left = -960.0
 margin_top = -540.0
 margin_right = 960.0
 margin_bottom = 540.0
-texture = SubResource( 7 )
+texture = ExtResource( 22 )
 expand = true
 __meta__ = {
 "_edit_use_anchors_": false
@@ -566,7 +429,7 @@ __meta__ = {
 autoplay = "anim"
 anims/anim = SubResource( 5 )
 
-[node name="Control" type="Control" parent="Background"]
+[node name="Logo Node" type="Control" parent="Background"]
 anchor_left = 0.5
 anchor_right = 0.5
 margin_left = -20.0
@@ -575,8 +438,8 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Logo" type="Sprite" parent="Background/Control"]
-position = Vector2( 28, -178 )
+[node name="Logo" type="Sprite" parent="Background/Logo Node"]
+position = Vector2( 28, -184 )
 scale = Vector2( 0.25, 0.25 )
 texture = ExtResource( 1 )
 
@@ -642,7 +505,7 @@ margin_left = -260.0
 margin_top = -88.0
 margin_right = 308.0
 margin_bottom = 296.0
-custom_styles/panel = SubResource( 66 )
+custom_styles/panel = ExtResource( 23 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -855,7 +718,7 @@ margin_left = -263.0
 margin_top = -88.0
 margin_right = 313.0
 margin_bottom = 296.0
-custom_styles/panel = SubResource( 8 )
+custom_styles/panel = ExtResource( 23 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -865,10 +728,10 @@ margin_left = -252.0
 margin_top = -72.0
 margin_right = 300.0
 margin_bottom = 288.0
-custom_fonts/font = SubResource( 11 )
+custom_fonts/font = ExtResource( 24 )
 custom_styles/selected_focus = ExtResource( 9 )
 custom_styles/bg = SubResource( 9 )
-items = [ "Multiplayer", ExtResource( 2 ), false, "Studio", ExtResource( 4 ), false, "Character Customization (Coming Soon)", ExtResource( 3 ), true, "Settings", ExtResource( 5 ), false, "Workshop", ExtResource( 5 ), false ]
+items = [ "Multiplayer", ExtResource( 2 ), false, "Studio", ExtResource( 4 ), false, "Character Customization (Coming Soon)", ExtResource( 3 ), true, "Settings", ExtResource( 5 ), false, "Workshop", ExtResource( 31 ), false ]
 fixed_icon_size = Vector2( 64, 64 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -893,7 +756,7 @@ margin_left = -263.0
 margin_top = -88.0
 margin_right = 313.0
 margin_bottom = 296.0
-custom_styles/panel = SubResource( 8 )
+custom_styles/panel = ExtResource( 23 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -903,7 +766,7 @@ margin_left = -252.0
 margin_top = -72.0
 margin_right = 300.0
 margin_bottom = 288.0
-custom_fonts/font = SubResource( 11 )
+custom_fonts/font = ExtResource( 24 )
 custom_styles/selected_focus = ExtResource( 9 )
 custom_styles/bg = SubResource( 9 )
 items = [ "Join", ExtResource( 2 ), false, "Host", ExtResource( 3 ), false, "Back", ExtResource( 5 ), false ]
@@ -931,7 +794,7 @@ margin_left = -263.0
 margin_top = -88.0
 margin_right = 313.0
 margin_bottom = 296.0
-custom_styles/panel = SubResource( 8 )
+custom_styles/panel = ExtResource( 23 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -941,7 +804,7 @@ margin_left = -252.0
 margin_top = -72.0
 margin_right = 300.0
 margin_bottom = 288.0
-custom_fonts/font = SubResource( 11 )
+custom_fonts/font = ExtResource( 24 )
 custom_styles/selected_focus = ExtResource( 9 )
 custom_styles/bg = SubResource( 9 )
 items = [ "Launch without map (Coming Soon)", ExtResource( 5 ), true, "Launch with map", ExtResource( 5 ), false, "Maps", ExtResource( 5 ), false, "Versions", ExtResource( 5 ), false, "Back", ExtResource( 5 ), false ]
@@ -969,7 +832,7 @@ margin_left = -263.0
 margin_top = -88.0
 margin_right = 313.0
 margin_bottom = 296.0
-custom_styles/panel = SubResource( 8 )
+custom_styles/panel = ExtResource( 23 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -979,10 +842,10 @@ margin_left = -252.0
 margin_top = -72.0
 margin_right = 300.0
 margin_bottom = 288.0
-custom_fonts/font = SubResource( 11 )
+custom_fonts/font = ExtResource( 24 )
 custom_styles/selected_focus = ExtResource( 9 )
 custom_styles/bg = SubResource( 9 )
-items = [ "Linux Settings", ExtResource( 5 ), false, "General Settings", ExtResource( 5 ), false, "Launch Novetus", ExtResource( 5 ), false, "Back", ExtResource( 5 ), false ]
+items = [ "Linux Settings", ExtResource( 5 ), false, "General Settings", ExtResource( 5 ), false, "Workshop Settings", ExtResource( 5 ), false, "Launch Novetus", ExtResource( 5 ), false, "Back", ExtResource( 5 ), false ]
 fixed_icon_size = Vector2( 64, 64 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -998,7 +861,7 @@ margin_left = -263.0
 margin_top = -88.0
 margin_right = 313.0
 margin_bottom = 296.0
-custom_styles/panel = SubResource( 8 )
+custom_styles/panel = ExtResource( 23 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -1075,8 +938,8 @@ margin_top = 328.0
 margin_right = 139.0
 margin_bottom = 368.0
 custom_fonts/font = ExtResource( 8 )
-custom_styles/hover = SubResource( 20 )
-custom_styles/normal = SubResource( 19 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/normal = ExtResource( 28 )
 text = "Back"
 
 [node name="Save" type="Button" parent="Main/Settings/Linux Settings/Panel"]
@@ -1085,8 +948,8 @@ margin_top = 328.0
 margin_right = 267.0
 margin_bottom = 368.0
 custom_fonts/font = ExtResource( 8 )
-custom_styles/hover = SubResource( 20 )
-custom_styles/normal = SubResource( 19 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/normal = ExtResource( 28 )
 text = "Save"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -1102,7 +965,7 @@ margin_left = -263.0
 margin_top = -88.0
 margin_right = 313.0
 margin_bottom = 296.0
-custom_styles/panel = SubResource( 8 )
+custom_styles/panel = ExtResource( 23 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -1283,17 +1146,151 @@ margin_bottom = 251.0
 custom_fonts/font = SubResource( 87 )
 text = "2011L GUI in 2011M"
 
+[node name="Workshop Settings" type="Control" parent="Main/Settings"]
+visible = false
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="Panel" type="Panel" parent="Main/Settings/Workshop Settings"]
+margin_left = -263.0
+margin_top = -88.0
+margin_right = 313.0
+margin_bottom = 296.0
+custom_styles/panel = ExtResource( 23 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Ttile" type="RichTextLabel" parent="Main/Settings/Workshop Settings/Panel"]
+margin_left = 27.0
+margin_top = 8.0
+margin_right = 275.0
+margin_bottom = 40.0
+custom_fonts/normal_font = SubResource( 21 )
+text = "Workshop Settings"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="WSRepo" type="RichTextLabel" parent="Main/Settings/Workshop Settings/Panel"]
+margin_left = 29.0
+margin_top = 40.0
+margin_right = 317.0
+margin_bottom = 72.0
+custom_fonts/normal_font = SubResource( 83 )
+text = "Workshop Repository"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Button" type="Button" parent="Main/Settings/Workshop Settings/Panel"]
+margin_left = 27.0
+margin_top = 328.0
+margin_right = 139.0
+margin_bottom = 368.0
+custom_fonts/font = ExtResource( 8 )
+custom_styles/hover = SubResource( 20 )
+custom_styles/normal = SubResource( 19 )
+text = "Back"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Save" type="Button" parent="Main/Settings/Workshop Settings/Panel"]
+margin_left = 155.0
+margin_top = 328.0
+margin_right = 267.0
+margin_bottom = 368.0
+custom_fonts/font = ExtResource( 8 )
+custom_styles/hover = SubResource( 20 )
+custom_styles/normal = SubResource( 19 )
+text = "Save"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="WSUpdate" type="CheckBox" parent="Main/Settings/Workshop Settings/Panel"]
+margin_left = 29.0
+margin_top = 216.0
+margin_right = 279.0
+margin_bottom = 243.0
+custom_fonts/font = SubResource( 87 )
+text = "Update Workshop on Startup"
+
+[node name="WorkshopRepo" type="LineEdit" parent="Main/Settings/Workshop Settings/Panel"]
+margin_left = 29.0
+margin_top = 64.0
+margin_right = 541.0
+margin_bottom = 88.0
+custom_fonts/font = SubResource( 100 )
+custom_styles/normal = ExtResource( 32 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="WSRepo2" type="RichTextLabel" parent="Main/Settings/Workshop Settings/Panel"]
+margin_left = 29.0
+margin_top = 96.0
+margin_right = 317.0
+margin_bottom = 128.0
+custom_fonts/normal_font = SubResource( 83 )
+text = "Repository Branch"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RepoBranch" type="LineEdit" parent="Main/Settings/Workshop Settings/Panel"]
+margin_left = 29.0
+margin_top = 120.0
+margin_right = 541.0
+margin_bottom = 144.0
+custom_fonts/font = SubResource( 100 )
+custom_styles/normal = ExtResource( 32 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="WSRepo3" type="RichTextLabel" parent="Main/Settings/Workshop Settings/Panel"]
+margin_left = 29.0
+margin_top = 152.0
+margin_right = 373.0
+margin_bottom = 184.0
+custom_fonts/normal_font = SubResource( 83 )
+text = "Repository ZIP for Deferred Search"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Defer" type="LineEdit" parent="Main/Settings/Workshop Settings/Panel"]
+margin_left = 29.0
+margin_top = 176.0
+margin_right = 541.0
+margin_bottom = 200.0
+custom_fonts/font = SubResource( 100 )
+custom_styles/normal = ExtResource( 32 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="VersionsWindow" type="WindowDialog" parent="Main"]
 margin_left = -160.0
 margin_top = -21.0
 margin_right = 230.0
 margin_bottom = 267.0
 custom_colors/title_color = Color( 1, 1, 1, 1 )
-custom_fonts/title_font = SubResource( 91 )
+custom_fonts/title_font = ExtResource( 26 )
 custom_icons/close_highlight = ExtResource( 21 )
 custom_icons/close = ExtResource( 20 )
-custom_styles/panel = SubResource( 92 )
+custom_styles/panel = ExtResource( 25 )
 window_title = "Versions"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="Panel" parent="Main/VersionsWindow"]
+margin_right = 390.0
+margin_bottom = 293.0
+custom_styles/panel = ExtResource( 23 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -1310,9 +1307,9 @@ __meta__ = {
 margin_left = 1.0
 margin_right = 391.0
 margin_bottom = 296.0
-custom_fonts/font = SubResource( 11 )
+custom_fonts/font = ExtResource( 24 )
 custom_styles/selected_focus = ExtResource( 9 )
-custom_styles/bg = SubResource( 30 )
+custom_styles/bg = SubResource( 99 )
 items = [ "Back", ExtResource( 5 ), false ]
 fixed_icon_size = Vector2( 64, 64 )
 __meta__ = {
@@ -1343,8 +1340,8 @@ margin_top = -124.0
 margin_right = 298.0
 margin_bottom = 276.0
 custom_colors/title_color = Color( 1, 1, 1, 1 )
-custom_fonts/title_font = SubResource( 61 )
-custom_styles/panel = SubResource( 92 )
+custom_fonts/title_font = ExtResource( 26 )
+custom_styles/panel = ExtResource( 25 )
 window_title = "Character Customization"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -1454,8 +1451,8 @@ margin_top = 288.0
 margin_right = 128.0
 margin_bottom = 311.0
 custom_fonts/font = SubResource( 54 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/normal = ExtResource( 28 )
 text = "Save"
 
 [node name="Save2" type="Button" parent="Main/CharCus"]
@@ -1464,8 +1461,8 @@ margin_top = 288.0
 margin_right = 240.0
 margin_bottom = 311.0
 custom_fonts/font = SubResource( 54 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/normal = ExtResource( 28 )
 text = "Load..."
 
 [node name="TabContainer" type="TabContainer" parent="Main/CharCus"]
@@ -1568,10 +1565,10 @@ margin_top = -104.0
 margin_right = 318.0
 margin_bottom = 296.0
 custom_colors/title_color = Color( 1, 1, 1, 1 )
-custom_fonts/title_font = SubResource( 91 )
+custom_fonts/title_font = ExtResource( 26 )
 custom_icons/close_highlight = ExtResource( 21 )
 custom_icons/close = ExtResource( 20 )
-custom_styles/panel = SubResource( 92 )
+custom_styles/panel = ExtResource( 25 )
 window_title = "Server List"
 
 [node name="Panel" type="Panel" parent="Main/Serverlist"]
@@ -1585,7 +1582,7 @@ __meta__ = {
 [node name="Panel2" type="Panel" parent="Main/Serverlist"]
 margin_right = 584.0
 margin_bottom = 296.0
-custom_styles/panel = SubResource( 73 )
+custom_styles/panel = ExtResource( 29 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -1596,7 +1593,7 @@ margin_bottom = 296.0
 custom_colors/font_color = Color( 0.803922, 0.803922, 0.803922, 1 )
 custom_fonts/font = SubResource( 68 )
 custom_styles/selected_focus = ExtResource( 9 )
-custom_styles/bg = SubResource( 72 )
+custom_styles/bg = SubResource( 98 )
 items = [ "Lachry's Server", ExtResource( 3 ), false, "Enufs Awesome Server", ExtResource( 3 ), false ]
 max_text_lines = 2
 fixed_column_width = 500
@@ -1611,9 +1608,9 @@ margin_top = 312.0
 margin_right = 200.0
 margin_bottom = 342.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 disabled = true
 text = "Join Server"
 
@@ -1623,9 +1620,9 @@ margin_top = 312.0
 margin_right = 376.0
 margin_bottom = 342.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Direct Connect"
 
 [node name="AddServer" type="Button" parent="Main/Serverlist"]
@@ -1634,9 +1631,9 @@ margin_top = 312.0
 margin_right = 520.0
 margin_bottom = 342.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Add Server"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -1648,9 +1645,9 @@ margin_top = 352.0
 margin_right = 520.0
 margin_bottom = 382.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Close"
 
 [node name="Edit" type="Button" parent="Main/Serverlist"]
@@ -1659,9 +1656,9 @@ margin_top = 352.0
 margin_right = 200.0
 margin_bottom = 382.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 disabled = true
 text = "Edit"
 __meta__ = {
@@ -1674,9 +1671,9 @@ margin_top = 352.0
 margin_right = 376.0
 margin_bottom = 382.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Version"
 
 [node name="HostWindow" type="WindowDialog" parent="Main"]
@@ -1685,9 +1682,9 @@ margin_top = -104.0
 margin_right = 318.0
 margin_bottom = 296.0
 custom_colors/title_color = Color( 1, 1, 1, 1 )
-custom_fonts/title_font = SubResource( 91 )
+custom_fonts/title_font = ExtResource( 26 )
 custom_icons/close = ExtResource( 20 )
-custom_styles/panel = SubResource( 92 )
+custom_styles/panel = ExtResource( 25 )
 window_title = "Host Server"
 
 [node name="Panel" type="Panel" parent="Main/HostWindow"]
@@ -1701,7 +1698,7 @@ __meta__ = {
 [node name="Panel2" type="Panel" parent="Main/HostWindow"]
 margin_right = 584.0
 margin_bottom = 296.0
-custom_styles/panel = SubResource( 73 )
+custom_styles/panel = ExtResource( 29 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -1712,9 +1709,9 @@ margin_top = 312.0
 margin_right = 200.0
 margin_bottom = 342.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 disabled = true
 text = "Host"
 
@@ -1724,9 +1721,9 @@ margin_top = 312.0
 margin_right = 376.0
 margin_bottom = 342.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Maps"
 
 [node name="Addons" type="Button" parent="Main/HostWindow"]
@@ -1735,9 +1732,9 @@ margin_top = 312.0
 margin_right = 520.0
 margin_bottom = 342.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Addons"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -1749,9 +1746,9 @@ margin_top = 352.0
 margin_right = 520.0
 margin_bottom = 382.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Close"
 
 [node name="Presets" type="Button" parent="Main/HostWindow"]
@@ -1760,9 +1757,9 @@ margin_top = 352.0
 margin_right = 200.0
 margin_bottom = 382.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 disabled = true
 text = "Presets"
 __meta__ = {
@@ -1775,9 +1772,9 @@ margin_top = 352.0
 margin_right = 376.0
 margin_bottom = 382.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Version"
 
 [node name="ServerDeets" type="RichTextLabel" parent="Main/HostWindow"]
@@ -1919,30 +1916,29 @@ __meta__ = {
 }
 
 [node name="WorkshopWindow" type="WindowDialog" parent="Main"]
-visible = true
 margin_left = -266.0
 margin_top = -104.0
 margin_right = 318.0
 margin_bottom = 296.0
 custom_colors/title_color = Color( 1, 1, 1, 1 )
-custom_fonts/title_font = SubResource( 91 )
+custom_fonts/title_font = ExtResource( 26 )
 custom_icons/close_highlight = ExtResource( 21 )
 custom_icons/close = ExtResource( 20 )
-custom_styles/panel = SubResource( 92 )
+custom_styles/panel = ExtResource( 25 )
 window_title = "Workshop"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Background" type="Panel" parent="Main/WorkshopWindow"]
+[node name="Panel" type="Panel" parent="Main/WorkshopWindow"]
 margin_right = 584.0
 margin_bottom = 400.0
-custom_styles/panel = SubResource( 62 )
+custom_styles/panel = ExtResource( 23 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Label" type="Label" parent="Main/WorkshopWindow/Background"]
+[node name="Label" type="Label" parent="Main/WorkshopWindow/Panel"]
 margin_left = 192.0
 margin_top = 176.0
 margin_right = 394.0
@@ -1950,7 +1946,7 @@ margin_bottom = 195.0
 custom_fonts/font = SubResource( 77 )
 text = "Connecting to Workshop..."
 
-[node name="Label2" type="Label" parent="Main/WorkshopWindow/Background"]
+[node name="Label2" type="Label" parent="Main/WorkshopWindow/Panel"]
 margin_left = 168.0
 margin_top = 200.0
 margin_right = 413.0
@@ -1962,7 +1958,7 @@ text = "Downloading the Repository Zip"
 visible = false
 margin_right = 584.0
 margin_bottom = 336.0
-custom_styles/panel = SubResource( 90 )
+custom_styles/panel = ExtResource( 29 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -1973,9 +1969,9 @@ margin_top = 352.0
 margin_right = 152.0
 margin_bottom = 382.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Download"
 clip_text = true
 __meta__ = {
@@ -1988,9 +1984,9 @@ margin_top = 352.0
 margin_right = 296.0
 margin_bottom = 382.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Upload"
 clip_text = true
 __meta__ = {
@@ -2039,7 +2035,7 @@ margin_bottom = -4.0
 custom_colors/title_color = Color( 1, 1, 1, 1 )
 custom_fonts/title_font = SubResource( 91 )
 custom_icons/close = ExtResource( 20 )
-custom_styles/panel = SubResource( 92 )
+custom_styles/panel = ExtResource( 25 )
 window_title = "Confirmation"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -2059,9 +2055,9 @@ margin_top = 94.0
 margin_right = 143.0
 margin_bottom = 124.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Yeah"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -2073,9 +2069,9 @@ margin_top = 94.0
 margin_right = 279.0
 margin_bottom = 124.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "No"
 
 [node name="Label" type="Label" parent="Main/WorkshopWindow/Confirmation"]
@@ -2101,7 +2097,6 @@ __meta__ = {
 }
 
 [node name="Upload" type="WindowDialog" parent="Main/WorkshopWindow"]
-visible = true
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -2113,7 +2108,7 @@ margin_bottom = 184.0
 custom_colors/title_color = Color( 1, 1, 1, 1 )
 custom_fonts/title_font = SubResource( 91 )
 custom_icons/close = ExtResource( 20 )
-custom_styles/panel = SubResource( 92 )
+custom_styles/panel = ExtResource( 25 )
 window_title = "Upload"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -2133,9 +2128,9 @@ margin_top = 292.0
 margin_right = 158.0
 margin_bottom = 322.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Generate"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -2147,9 +2142,9 @@ margin_top = 292.0
 margin_right = 319.0
 margin_bottom = 322.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Go to Github"
 
 [node name="Label" type="Label" parent="Main/WorkshopWindow/Upload"]
@@ -2349,16 +2344,16 @@ margin_top = -104.0
 margin_right = 222.0
 margin_bottom = 296.0
 custom_colors/title_color = Color( 1, 1, 1, 1 )
-custom_fonts/title_font = SubResource( 91 )
+custom_fonts/title_font = ExtResource( 26 )
 custom_icons/close_highlight = ExtResource( 21 )
 custom_icons/close = ExtResource( 20 )
-custom_styles/panel = SubResource( 92 )
+custom_styles/panel = ExtResource( 25 )
 window_title = "Addons Manager"
 
 [node name="Panel" type="Panel" parent="Main/AddonsWindow"]
 margin_right = 384.0
 margin_bottom = 400.0
-custom_styles/panel = SubResource( 62 )
+custom_styles/panel = ExtResource( 23 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -2366,7 +2361,7 @@ __meta__ = {
 [node name="Panel2" type="Panel" parent="Main/AddonsWindow"]
 margin_right = 384.0
 margin_bottom = 336.0
-custom_styles/panel = SubResource( 73 )
+custom_styles/panel = ExtResource( 29 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -2374,7 +2369,7 @@ __meta__ = {
 [node name="Disabled" type="ItemList" parent="Main/AddonsWindow"]
 margin_left = 10.0
 margin_top = 40.0
-margin_right = 194.0
+margin_right = 184.0
 margin_bottom = 328.0
 custom_fonts/font = SubResource( 88 )
 custom_styles/bg = SubResource( 89 )
@@ -2385,7 +2380,7 @@ __meta__ = {
 }
 
 [node name="Enabled" type="ItemList" parent="Main/AddonsWindow"]
-margin_left = 200.0
+margin_left = 216.0
 margin_top = 40.0
 margin_right = 384.0
 margin_bottom = 328.0
@@ -2403,9 +2398,9 @@ margin_top = 352.0
 margin_right = 368.0
 margin_bottom = 382.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Save and Close"
 
 [node name="Label" type="Label" parent="Main/AddonsWindow"]
@@ -2420,9 +2415,9 @@ __meta__ = {
 }
 
 [node name="Label5" type="Label" parent="Main/AddonsWindow"]
-margin_left = 200.0
+margin_left = 224.0
 margin_top = 16.0
-margin_right = 325.0
+margin_right = 349.0
 margin_bottom = 35.0
 custom_fonts/font = SubResource( 77 )
 text = "Enabled Addons"
@@ -2440,9 +2435,9 @@ margin_top = -72.0
 margin_right = 148.5
 margin_bottom = 72.0
 custom_colors/title_color = Color( 1, 1, 1, 1 )
-custom_fonts/title_font = SubResource( 91 )
+custom_fonts/title_font = ExtResource( 26 )
 custom_icons/close = ExtResource( 20 )
-custom_styles/panel = SubResource( 92 )
+custom_styles/panel = ExtResource( 25 )
 window_title = "Direct Connect"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -2466,9 +2461,9 @@ margin_top = 94.0
 margin_right = 143.0
 margin_bottom = 124.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Join Server"
 
 [node name="Close" type="Button" parent="Main/DirectConnectWindow"]
@@ -2477,9 +2472,9 @@ margin_top = 94.0
 margin_right = 279.0
 margin_bottom = 124.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Close"
 
 [node name="Label" type="Label" parent="Main/DirectConnectWindow"]
@@ -2542,9 +2537,9 @@ margin_top = 228.0
 margin_right = 144.0
 margin_bottom = 258.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Add Server"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -2556,9 +2551,9 @@ margin_top = 228.0
 margin_right = 280.0
 margin_bottom = 258.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Close"
 
 [node name="Label" type="Label" parent="Main/AddServerWindow"]
@@ -2676,9 +2671,9 @@ margin_top = 228.0
 margin_right = 144.0
 margin_bottom = 258.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Delete"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -2690,9 +2685,9 @@ margin_top = 228.0
 margin_right = 280.0
 margin_bottom = 258.0
 custom_fonts/font = SubResource( 63 )
-custom_styles/hover = SubResource( 55 )
-custom_styles/disabled = SubResource( 64 )
-custom_styles/normal = SubResource( 56 )
+custom_styles/hover = ExtResource( 27 )
+custom_styles/disabled = ExtResource( 30 )
+custom_styles/normal = ExtResource( 28 )
 text = "Save"
 
 [node name="Label" type="Label" parent="Main/EditServerWindow"]
@@ -2849,6 +2844,8 @@ __meta__ = {
 [connection signal="button_down" from="Main/Settings/General Settings/Panel/OptionButton" to="." method="_on_MenuButton_about_to_show"]
 [connection signal="item_selected" from="Main/Settings/General Settings/Panel/OptionButton" to="." method="_on_OptionButton_item_selected"]
 [connection signal="item_selected" from="Main/Settings/General Settings/Panel/ResolutionList" to="." method="_on_ResolutionList_item_selected"]
+[connection signal="pressed" from="Main/Settings/Workshop Settings/Panel/Button" to="." method="Back_pressed"]
+[connection signal="pressed" from="Main/Settings/Workshop Settings/Panel/Save" to="." method="_on_Save_pressed"]
 [connection signal="item_activated" from="Main/VersionsWindow/Versions/ItemList" to="." method="versionslist_activated"]
 [connection signal="file_selected" from="Main/Maps" to="." method="_on_Maps_confirmed"]
 [connection signal="item_selected" from="Main/Serverlist/ItemList" to="." method="mplist_item_selected"]

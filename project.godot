@@ -61,6 +61,7 @@ Global="*res://scenes/global.gd"
 httprequests="*res://scenes/httprequests.gd"
 Configs="*res://scenes/configs.gd"
 ControllerIcons="*res://addons/controller_icons/ControllerIcons.gd"
+ThemeManager="*res://scenes/ThemeManager.gd"
 
 [debug]
 
@@ -98,6 +99,11 @@ charcus={
 servers={
 "deadzone": 0.5,
 "events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":true,"control":false,"meta":false,"command":false,"pressed":false,"scancode":52,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
+ ]
+}
+reload={
+"deadzone": 0.5,
+"events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":true,"meta":false,"command":true,"pressed":false,"scancode":82,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
  ]
 }
 

@@ -1,6 +1,6 @@
 extends Node
 
-var CTheme
+var Paused = true
 
 var NewServerTexture = load("res://textures/charcustom.png")
 var NewServerTexturePath
@@ -11,7 +11,10 @@ var Resolutions = [Vector2(700, 600),Vector2(1280,720)]
 var serverconfig = ConfigFile.new()
 
 var WorkshopJSON
-var WorkshopRepo = "https://github.com/Lachrymogenic/NovetusFE-WS/archive/refs/heads/repository.zip"
+var WorkshopRepo = "Lachrymogenic/NovetusFE-WS/"
+var WorkshopBranch = "repository"
+var WorkshopDefer = "https://github.com/Lachrymogenic/NovetusFE-WS/archive/refs/heads/repository.zip"
+var WorkshopUOS = false
 
 var AddonsList = []
 var EnabledAddonsList = []
@@ -161,12 +164,19 @@ func saveconfig():
 	var config = ConfigFile.new()
 	config.set_value("Linux Settings", "wineprefix", $"../Main/Main/Settings/Linux Settings/Panel/WPBox".text)
 	config.set_value("Linux Settings", "wine_exec_path", $"../Main/Main/Settings/Linux Settings/Panel/WPBox2".text)
+	
 	config.set_value("General Settings", "savedicons", NewServerIcons)
+	config.set_value("General Settings", "theme", ThemeManager.CurrentTheme)
+	
 	config.set_value("Workshop Settings", "downloaded", DownloadedMods)
+	config.set_value("Workshop Settings", "update_on_startup", WorkshopUOS)
+	config.set_value("Workshop Settings", "repository", WorkshopRepo)
+	config.set_value("Workshop Settings", "branch", WorkshopBranch)
+	config.set_value("Workshop Settings", "deferred_zip", WorkshopDefer)
+	
 	config.set_value("General Settings", "resolution", OS.window_size)
 	config.set_value("General Settings", "first_time_setup", $"../Main/Background/FirstTime/Panel/TabContainer/Linux/NeverShow".pressed)
 	config.save(Global.WorkingDirectory + "/NovetusFE/nfeconfig.ini")
-	if CTheme != null: get_tree().change_scene_to(CTheme)
 	
 func list_files_in_directory(path):
 	var files = []
@@ -312,6 +322,11 @@ func saveaddonfile():
 	for i in AddonLua:
 		f.store_line(i)
 	f.close()
+	counter2 = 0
+	for i in Configs.EnabledAddonsList:
+		i = i.replace('"',"")
+		Configs.EnabledAddonsList[counter2] = i
+		counter2 += 1
 
 func imageadd(path):
 	NewServerTexturePath = path
@@ -343,10 +358,16 @@ func loadconfig(arg):
 		return
 	match arg:
 		"/NovetusFE/nfeconfig.ini":
+			WorkshopRepo = config.get_value("Workshop Settings", "repository",WorkshopRepo)
+			WorkshopBranch = config.get_value("Workshop Settings", "branch",WorkshopBranch)
+			WorkshopUOS = config.get_value("Workshop Settings", "update_on_startup",WorkshopUOS)
+			WorkshopDefer = config.get_value("Workshop Settings", "deferred_zip",WorkshopDefer)
+			
 			LinuxWinePrefix = config.get_value("Linux Settings", "wineprefix")
 			LinuxWinePath = config.get_value("Linux Settings", "wine_exec_path")
 			DownloadedMods = config.get_value("Workshop Settings", "downloaded", [])
 			OS.window_size = config.get_value("General Settings", "resolution",Vector2(700,600))
+			
 			$"../Main/Background/FirstTime/Panel/TabContainer/Linux/WinePathText".text = LinuxWinePath
 			$"../Main/Background/FirstTime/Panel/TabContainer/Linux/WinePrefixText".text = LinuxWinePrefix
 			$"../Main/Main/Menu".visible = config.get_value("General Settings", "first_time_setup",false)
@@ -359,6 +380,10 @@ func loadconfig(arg):
 				imageadd(i)
 			$"../Main/Main/Settings/Linux Settings/Panel/WPBox".text = LinuxWinePrefix
 			$"../Main/Main/Settings/Linux Settings/Panel/WPBox2".text = LinuxWinePath
+			$"../Main/Main/Settings/Workshop Settings/Panel/WorkshopRepo".text = WorkshopRepo
+			$"../Main/Main/Settings/Workshop Settings/Panel/RepoBranch".text = WorkshopBranch
+			$"../Main/Main/Settings/Workshop Settings/Panel/Defer".text = WorkshopDefer
+			$"../Main/Main/Settings/Workshop Settings/Panel/WSUpdate".pressed = WorkshopUOS
 		"/NovetusFE/servers.ini":
 			for i in config.get_sections():
 				$"../Main/Main/Serverlist/ItemList".add_item(i,pathtoimage(config.get_value(i,"icon","res://textures/charcustom.png")))

@@ -14,6 +14,7 @@ onready var workshopfolder = Global.WorkingDirectory + "/NovetusFE/workshop"
 func _ready():
 	looptimer.one_shot = false
 	looptimer.connect("timeout", self, "looptimer_timeout")
+	ziphttp.connect("request_completed", self, "_ziphttp_request_completed")
 	add_child(http)
 	add_child(ziphttp)
 	add_child(storehttp)
@@ -82,7 +83,7 @@ func _ziphttp_request_completed(result, response_code, headers, body):
 	looptimer.stop()
 	print("ziphttp: Download Complete")
 	#extract(Global.WorkingDirectory + "/NovetusFE/downloads/download.zip", Global.WorkingDirectory, "index.txt")
-	ziphttp.disconnect("request_completed", self, "_ziphttp_request_completed")
+	#ziphttp.disconnect("request_completed", self, "_ziphttp_request_completed")
 	
 func looptimer_timeout():
 	Global.Main.get_node("OverlayLayer/Overlay/Downloading/Downloading").text = "Downloading..."
@@ -119,31 +120,83 @@ func uncompress(path, filetoget):
 
 func download(url : String, target : String):
 	looptimer.start(0.5)
-	ziphttp.connect("request_completed", self, "_ziphttp_request_completed")
 	ziphttp.download_file = target # where to save the downloaded file
 	ziphttp.request(url) # start the download
 	
-func _storehttp_request_completed(result, response_code, headers, body):
-	populateworkshoplist()
-	storehttp.disconnect("request_completed", self, "_storehttp_request_completed")
+var incall = false
 	
-func populateworkshoplist():
-	uncompress(Global.WorkingDirectory + "/NovetusFE/workshop/downloads/repository.zip","any")
-	for i in Global.Main.get_node("Main/WorkshopWindow/List/ScrollContainer/GridContainer").get_children():
-		i.queue_free()
-	for i in index:
-		if i.ends_with(".json"):
-			var response = parse_json(uncompress(Global.WorkingDirectory + "/NovetusFE/workshop/downloads/repository.zip", i).get_string_from_utf8())
-			var button = preload("res://scenes/objects/cus_ws_button.tscn").instance()
-			button.shortname = response.shortname
-			button.description = response.description
-			button.creator = response.creator
-			button.tags = response.tags
-			button.iconurl = response.iconurl 
-			button.url = response.url
-			button.leaveout = response.leaveout
-			Global.Main.get_node("Main/WorkshopWindow/List/ScrollContainer/GridContainer").add_child(button)
-			yield(get_tree().create_timer(0.5),"timeout")
+func store_delay(url):
+	if incall == false:
+		incall = true
+		storehttp.request(url)
+	else:
+		while incall == true:
+			if incall == false: 
+				break
+			yield(get_tree().create_timer(0.1),"timeout")
+		#storehttp.request(url)
+func _storehttp_request_completed(result, response_code, headers, body):
+	if usezip == true:
+		populateworkshoplist()
+		return
+	incall = false
+	if "tree" in parse_json(body.get_string_from_utf8()):
+		for i in parse_json(body.get_string_from_utf8())["tree"]:
+			print(i)
+			if i["path"] == "store":
+				store_delay(i["url"])
+			if i["path"].ends_with(".json"):
+				print(i["path"])
+				#yield(get_tree().create_timer(Configs.WorkshopInterval),"timeout")
+				while incall == true:
+					yield(get_tree().create_timer(0.1),"timeout")
+				store_delay("https://raw.githubusercontent.com/" + Configs.WorkshopRepo + "/repository/store/" + i["path"]) 
+	else:
+		if "shortname" in parse_json(body.get_string_from_utf8()):
+			print(parse_json(body.get_string_from_utf8()))
+			populateworkshoplist(body.get_string_from_utf8())
+		else:
+			print("Stopped working")
+			storehttp.cancel_request()
+			storehttp.download_file = Global.WorkingDirectory + "/NovetusFE/workshop/downloads/repository.zip"
+			storehttp.request(Configs.WorkshopDefer)
+			usezip = true
+		#print(parse_json(body.get_string_from_utf8())["content"])
+	#populateworkshoplist()
+	#storehttp.disconnect("request_completed", self, "_storehttp_request_completed")
+	
+var usezip = false 
+	
+func populateworkshoplist(json=null):
+	if json == null:
+		uncompress(Global.WorkingDirectory + "/NovetusFE/workshop/downloads/repository.zip","any")
+		for i in Global.Main.get_node("Main/WorkshopWindow/List/ScrollContainer/GridContainer").get_children():
+			i.queue_free()
+		for i in index:
+			if i.ends_with(".json"):
+				var response = parse_json(uncompress(Global.WorkingDirectory + "/NovetusFE/workshop/downloads/repository.zip", i).get_string_from_utf8())
+				var button = preload("res://scenes/objects/cus_ws_button.tscn").instance()
+				button.shortname = response.shortname
+				button.description = response.description
+				button.creator = response.creator
+				button.tags = response.tags
+				button.iconurl = response.iconurl 
+				button.url = response.url
+				button.leaveout = response.leaveout
+				Global.Main.get_node("Main/WorkshopWindow/List/ScrollContainer/GridContainer").add_child(button)
+				yield(get_tree().create_timer(0.5),"timeout")
+	else:
+		json = parse_json(json)
+		var button = preload("res://scenes/objects/cus_ws_button.tscn").instance()
+		button.shortname = json.shortname
+		button.description = json.description
+		button.creator = json.creator
+		button.tags = json.tags
+		button.iconurl = json.iconurl 
+		button.url = json.url
+		button.leaveout = json.leaveout
+		Global.Main.get_node("Main/WorkshopWindow/List/ScrollContainer/GridContainer").add_child(button)
+		
 	Global.Main.get_node("Main/WorkshopWindow/List").visible = true
 	for i in Global.Main.get_node("Main/WorkshopWindow/List/ScrollContainer/GridContainer").get_children():
 		if i.shortname in Configs.DownloadedMods:
@@ -151,5 +204,5 @@ func populateworkshoplist():
 	
 func get_store():
 	storehttp.connect("request_completed", self, "_storehttp_request_completed")
-	storehttp.download_file = Global.WorkingDirectory + "/NovetusFE/workshop/downloads/repository.zip"
-	storehttp.request(Configs.WorkshopRepo)
+	storehttp.request("https://api.github.com/repos/" + Configs.WorkshopRepo + "git/trees/repository")
+	print("done")

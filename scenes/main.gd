@@ -5,7 +5,7 @@ var dir = Directory.new()
 var CurrentMenu
 
 func _ready():
-	httprequests.get_store()
+	#httprequests.get_store()
 	#httprequests.uncompress(Global.WorkingDirectory + "/NovetusFE/workshop/downloads/main.zip","Red-sGunMeshes-main/shareddata/Guns/Fonts/AWP.mesh")
 	$Main/WorkshopWindow/List.visible = false
 	OS.min_window_size = Vector2(700, 600)
@@ -13,6 +13,8 @@ func _ready():
 	Configs.loadconfig("/NovetusFE/nfeconfig.ini")
 	Configs.addonlist()
 	Configs.loadnovetusconfig()
+	if Configs.WorkshopUOS == true:
+		httprequests.get_store()
 	for i in Configs.list_files_in_directory(Global.WorkingDirectory + "/clients/"):
 		$Main/VersionsWindow/Versions/ItemList.add_item(i, load("res://textures/studio.png"))
 	$Main/VersionsWindow/Versions/ItemList.sort_items_by_text()
@@ -70,10 +72,15 @@ func Back_pressed():
 		"Settings":
 			$"Main/Settings/Linux Settings".visible = false
 			$"Main/Settings/General Settings".visible = false
+			$"Main/Settings/Workshop Settings".visible = false
 
 func _on_Save_pressed():
 	Configs.GraphicsMode = str($"Main/Settings/General Settings/Panel/GraphicsModeButton".selected)
 	Configs.QualityLevel = str($"Main/Settings/General Settings/Panel/GraphicsLevelButton".selected)
+	Configs.WorkshopUOS = $"Main/Settings/Workshop Settings/Panel/WSUpdate".pressed
+	Configs.WorkshopRepo = $"Main/Settings/Workshop Settings/Panel/WorkshopRepo".text
+	Configs.WorkshopBranch = $"Main/Settings/Workshop Settings/Panel/RepoBranch".text
+	Configs.WorkshopDefer = $"Main/Settings/Workshop Settings/Panel/Defer".text
 	if $"Main/Settings/General Settings/Panel/DiscordRPCButton".selected == 1: 
 		Configs.DiscordRichPresence = "True"
 	else:
@@ -100,7 +107,9 @@ func _on_MenuButton_about_to_show():
 	pass
 
 func _on_OptionButton_item_selected(index):
-	Configs.CTheme = load(Global.WorkingDirectory + "/NovetusFE/themes/" + $"Main/Settings/General Settings/Panel/OptionButton".get_item_text(index))
+	Configs.CTheme = Global.WorkingDirectory + "/NovetusFE/themes/" + $"Main/Settings/General Settings/Panel/OptionButton".get_item_text(index)
+	print(Configs.CTheme)
+	print(get_tree().current_scene.filename)
 
 func versionslist_activated(index):
 	match $Main/VersionsWindow/Versions/ItemList.get_item_text(index):
