@@ -16,3 +16,5 @@
  
  # Installation
  Place the NovetusFE binary inside of your Novetus Install Directory
+ ## Custom Theme Example
+ https://github.com/Lachrymogenic/Novetus-Stuff/tree/rose-pink-theme
