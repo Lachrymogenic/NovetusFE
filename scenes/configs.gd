@@ -114,14 +114,17 @@ func updateinfo():
 	else:
 		$"../Main/Main/Settings/General Settings/Panel/ReShade".pressed = false
 	httprequests.http.request("https://api.ipify.org/?format=json")
-	$"../Main/Background/Info".text = "Hello, %PLAYER%! Client Selected: %CLIENT%, Map Selected: %MAP%"
+	$"../Main/Background/Info".bbcode_text = "[center]Hello, %PLAYER%! Client Selected: %CLIENT%, Map Selected: %MAP%"
 	$"../Main/Main/HostWindow/ServerDeets".text = "Map: %MAP%\nPlayers: %PLAYERS%\nIP: %IP%\nPort: %PORT%\nClient: %CLIENT%\nNovetus Version: %NOVEVER%\nMaster Server: %MASTERSERVER%\nURI: %URI%"
 	if Global.PublicIP != "": URI = "novetus://" + to_uri(Global.PublicIP, RobloxPort)
 	keepupdatedtags = {"%PLAYER%":PlayerName,"%CLIENT%":Version,"%MAP%":Map.split("//")[-1],"%PORT%":RobloxPort,
 	"%PLAYERS%":PlayerLimit,"%MASTERSERVER%":MasterServer,"%URI%":URI,"%IP%":Global.PublicIP,"%NOVEVER%":NovetusVersion}
 	for i in keepupdated:
 		for v in keepupdatedtags:
-			i.text = i.text.replace(v,keepupdatedtags[v])
+			if i.bbcode_enabled:
+				i.bbcode_text = i.bbcode_text.replace(v,keepupdatedtags[v])
+			else:
+				i.text = i.text.replace(v,keepupdatedtags[v])
 
 func loadnovetusconfig():
 	NovetusConfig = customconfig("/config/config.ini")

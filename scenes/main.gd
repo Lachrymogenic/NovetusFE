@@ -4,12 +4,14 @@ var f = File.new()
 var dir = Directory.new()
 var CurrentMenu
 
+
 func _ready():
 	#httprequests.get_store()
 	#httprequests.uncompress(Global.WorkingDirectory + "/NovetusFE/workshop/downloads/main.zip","Red-sGunMeshes-main/shareddata/Guns/Fonts/AWP.mesh")
 	$Main/WorkshopWindow/List.visible = false
 	OS.min_window_size = Vector2(700, 600)
 	OS.max_window_size = Vector2(1920, 1080)
+	get_tree().get_root().connect("size_changed", self, "sizechange")
 	Configs.loadconfig("/NovetusFE/nfeconfig.ini")
 	Configs.addonlist()
 	Configs.loadnovetusconfig()
@@ -24,6 +26,13 @@ func _ready():
 	if Configs.Map != "": $Main/HostWindow/Host.disabled = false
 	for i in Configs.Resolutions:
 		$"Main/Settings/General Settings/Panel/ResolutionList".add_item(str(i).replace("(","").replace(")",""))
+	$"Main/Settings/General Settings/Panel/OptionButton".clear()
+	$"Main/Settings/General Settings/Panel/OptionButton".add_item("Default")
+	for i in Configs.list_files_in_directory(Global.WorkingDirectory + "/NovetusFE/themes"):
+		if not "." in i:
+			$"Main/Settings/General Settings/Panel/OptionButton".add_item(i)
+	pass
+
 
 func main_item_activated(index):
 	match $Main/Menu/ItemList.get_item_text(index):
@@ -38,6 +47,10 @@ func main_item_activated(index):
 			$Main/Multiplayer/ItemList.grab_focus()
 		"Workshop":
 			$Main/WorkshopWindow.popup_centered()
+			if Configs.WorkshopUOS == false:
+					for i in Global.Main.get_node("Main/WorkshopWindow/List/ScrollContainer/GridContainer").get_children():
+						i.queue_free()
+					httprequests.get_store()
 		"Versions":
 			$Main/VersionsWindow.popup_centered()
 			$Main/VersionsWindow/Versions/ItemList.grab_focus()
@@ -49,6 +62,8 @@ func settings_item_activated(index):
 			$Main/Menu/ItemList.grab_focus()
 		"Linux Settings":
 			$"Main/Settings/Linux Settings".visible = true
+		"Workshop Settings":
+			$"Main/Settings/Workshop Settings".visible = true
 		"General Settings":
 			$"Main/Settings/General Settings".visible = true
 		"Launch Novetus":
@@ -99,17 +114,12 @@ func _on_Save_pressed():
 func _on_ThemeButton_pressed():
 	pass # Replace with function body.
 
-func _on_MenuButton_about_to_show():
-	$"Main/Settings/General Settings/Panel/OptionButton".clear()
-	$"Main/Settings/General Settings/Panel/OptionButton".add_item("Default")
-	for i in Configs.list_files_in_directory(Global.WorkingDirectory + "/NovetusFE/themes"):
-		$"Main/Settings/General Settings/Panel/OptionButton".add_item(i)
-	pass
-
 func _on_OptionButton_item_selected(index):
-	Configs.CTheme = Global.WorkingDirectory + "/NovetusFE/themes/" + $"Main/Settings/General Settings/Panel/OptionButton".get_item_text(index)
-	print(Configs.CTheme)
-	print(get_tree().current_scene.filename)
+	ThemeManager.CurrentTheme = Global.WorkingDirectory + "/NovetusFE/themes/" + $"Main/Settings/General Settings/Panel/OptionButton".get_item_text(index)
+	if $"Main/Settings/General Settings/Panel/OptionButton".get_item_text(index) == "Default":
+		ThemeManager.CurrentTheme = "res://scenes/style"
+	print(ThemeManager.CurrentTheme)
+	ThemeManager.loadtheme()
 
 func versionslist_activated(index):
 	match $Main/VersionsWindow/Versions/ItemList.get_item_text(index):
@@ -280,6 +290,12 @@ func _on_OpenNovetus_pressed():
 func _on_ResolutionList_item_selected(index):
 	OS.window_size = Vector2($"Main/Settings/General Settings/Panel/ResolutionList".get_item_text(index).replace(" ","").split(",")[0], $"Main/Settings/General Settings/Panel/ResolutionList".get_item_text(index).replace(" ","").split(",")[1])
 
+func sizechange():
+	if get_viewport_rect().size > Vector2(1100, 600):
+		$Controls.visible = true
+	else:
+		$Controls.visible = false
+
 func _on_Maps_pressed():
 	$Main/Maps.popup_centered()
 
@@ -373,8 +389,6 @@ func Workshop_Download_pressed():
 			downloadlocation = Global.WorkingDirectory + "/NovetusFE/workshop/downloads/" + i.url.split("/")[-1]
 			httprequests.ziphttp.connect("request_completed", self, "download_complete")
 			httprequests.download(i.url, downloadlocation)
-			
-			
 			
 func download_complete(result, response_code, headers, body):
 	print(downloadlocation)

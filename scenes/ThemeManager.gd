@@ -7,15 +7,17 @@ var f = File.new()
 var config = ConfigFile.new()
 
 func _ready():
+	config.load(Global.WorkingDirectory + "/NovetusFE/nfeconfig.ini")
+	CurrentTheme = config.get_value("General Settings", "theme","")
 	print(Color("c695a4"))
 	loadtheme()
 								
 func loadtheme():
-	var err = config.load(Global.WorkingDirectory + "/NovetusFE/nfeconfig.ini")
-	if err != OK: return
-	CurrentTheme = config.get_value("General Settings", "theme","")
+	#var err = config.load(Global.WorkingDirectory + "/NovetusFE/nfeconfig.ini")
+	#if err != OK: return
 	if CurrentTheme != "":
 		for i in Configs.list_files_in_directory(CurrentTheme):
+			print(i)
 			match i:
 				"index.json":
 					var index = parse_json(file_open(CurrentTheme + "/" + i))
@@ -34,18 +36,32 @@ func loadtheme():
 					find("Panel",i, "panel", false, "Main/Settings")
 				"darkpanel.tres":
 					find("Panel2",i, "panel")
+					find("List",i, "panel", false, "Main/WorkshopWindow")
+					find(LineEdit,i, "normal", true, "Main/Settings/Linux Settings")
+					find(LineEdit,i, "normal", true, "Main/Settings/General Settings")
+					find(LineEdit,i, "normal", true, "Main/Settings/Workshop Settings")
 				"button-normal.tres":
 					find(Button,i, "normal", true)
+					find(Button,i, "normal", true, "Main/WorkshopWindow")
 					find(Button,i, "normal", true, "Main/Settings/Linux Settings")
 					find(Button,i, "normal", true, "Main/Settings/General Settings")
+					find(Button,i, "normal", true, "Main/Settings/Workshop Settings")
 				"button-disabled.tres":
 					find(Button,i, "disabled", true)
 					find(Button,i, "disabled", true, "Main/Settings/Linux Settings")
 					find(Button,i, "disabled", true, "Main/Settings/General Settings")
+					find(Button,i, "disabled", true, "Main/Settings/Workshop Settings")
 				"titlebar.tres":
 					find2(WindowDialog,i, "panel", true)
+				"window-bar-font.tres":
+					find2(WindowDialog,i, "title_font", true)
+				"itemlist-font.tres":
+					find(ItemList,i, "font", true)
 				"button-hovered.tres":
 					find(Button,i, "hover", true)
+					find(Button,i, "hover", true, "Main/Settings/Linux Settings")
+					find(Button,i, "hover", true, "Main/Settings/General Settings")
+					find(Button,i, "hover", true, "Main/Settings/Workshop Settings")
 				"background-gradient.tres":
 					var theme = load(CurrentTheme + "/" + i)
 					Global.Main.get_node("Background/Gradient").texture = theme
@@ -73,7 +89,10 @@ func find(string, i, style, LookForType=false, path="Main"):
 					v.add_stylebox_override(style,theme)
 			else:
 				if v is string:
-					v.add_stylebox_override(style,theme)
+					if style == "font":
+						v.add_font_override(style,theme)
+					else:
+						v.add_stylebox_override(style,theme)
 
 func find2(string, i, style, LookForType=false):
 	var theme = load(CurrentTheme + "/" + i)
@@ -83,4 +102,8 @@ func find2(string, i, style, LookForType=false):
 				d.add_stylebox_override(style,theme)
 		else:
 			if d is string:
-				d.add_stylebox_override(style,theme)
+				if style == "title_font":
+					d.add_font_override(style,theme)
+				else:
+					d.add_stylebox_override(style,theme)
+
