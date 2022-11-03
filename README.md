@@ -1,4 +1,5 @@
  # NovetusFE
+ This program is no longer supported by its developer, consider forking it.
  A frontend application made for Novetus, by https://bitl.itch.io
  
  # Whats it for?
